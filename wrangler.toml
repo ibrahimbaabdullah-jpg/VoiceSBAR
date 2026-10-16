@@ -21,11 +21,13 @@ ELEVENLABS_MODEL_ID = "scribe_v2"
 # "true" sends enable_logging=false (zero retention). Only ElevenLabs Enterprise accounts accept it.
 ELEVENLABS_ZERO_RETENTION = "false"
 
-# Optional AI clean-up via any OpenAI-compatible Chat Completions API. Disabled until OPENAI_API_KEY is set.
-ENHANCE_BASE_URL = "https://api.openai.com/v1"
-ENHANCE_MODEL = "gpt-6-luna"
-# Sent as reasoning_effort. Set to "" for providers or models that do not support it.
-ENHANCE_REASONING_EFFORT = "none"
+# Optional AI clean-up (punctuation only; rejected if any word changes) via any OpenAI-compatible Chat
+# Completions API. VoiceSBAR uses Gemini's OpenAI-compatible endpoint, so set the OPENAI_API_KEY secret to your
+# Gemini key. Disabled until OPENAI_API_KEY is set. For OpenAI itself use https://api.openai.com/v1.
+ENHANCE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+ENHANCE_MODEL = "gemini-3.5-flash-lite"
+# Sent as reasoning_effort. Gemini rejects "none"; "minimal" is its lowest setting. Set "" to send nothing.
+ENHANCE_REASONING_EFFORT = "minimal"
 
 # SBAR handoff reports: one Gemini Interactions call per report, store=false. Disabled until GEMINI_API_KEY is set.
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"

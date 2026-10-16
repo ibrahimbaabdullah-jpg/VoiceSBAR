@@ -72,17 +72,15 @@ Open `.dev.vars` and fill in your own keys. Never commit this file or share its 
 | `GEMINI_API_KEY` | SBAR reports in the Handoff tab, from [Google AI Studio](https://aistudio.google.com/api-keys). Without it, only the fixed example works |
 | `ADMIN_SETUP_CODE` | Any long random string; you enter it once in the app to create the first (admin) account |
 
-**Optional AI clean-up with the same Gemini key.** Clean-up uses any OpenAI-compatible API, so you can point it at
-Gemini's OpenAI-compatible endpoint. Add these lines to `.dev.vars`:
+**Optional AI clean-up with the same Gemini key.** Clean-up uses any OpenAI-compatible API, and `wrangler.toml`
+already points it at Gemini's OpenAI-compatible endpoint (`gemini-3.5-flash-lite`, `reasoning_effort` `minimal`,
+because Gemini rejects `none`). To turn it on, add your Gemini key once more under the name the clean-up uses:
 
 ```ini
 OPENAI_API_KEY=<your Gemini key>
-ENHANCE_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
-ENHANCE_MODEL=gemini-3.5-flash-lite
-ENHANCE_REASONING_EFFORT=minimal
 ```
 
-`ENHANCE_REASONING_EFFORT` must be `minimal` here: the default in `wrangler.toml` is `none`, which Gemini rejects.
+On the live site, add the same `OPENAI_API_KEY` as a Cloudflare secret.
 
 **No keys, no cost.** The bundled mock providers stand in for ElevenLabs, the clean-up API and Gemini. Uncomment
 the mock lines at the end of `.dev.vars`, then start them in their own terminal:
@@ -196,7 +194,7 @@ this project is not affiliated with them or with AHRQ.
 | الاختبارات | Vitest وTesting Library | اختبارات الخادم وفحص الاقتباسات والواجهة، بدون إنترنت أو مفاتيح |
 | الأدوات | Wrangler وESLint وGitHub | التشغيل المحلي والنشر، فحص الكود، إدارة الشيفرة |
 
-**التشغيل المحلي:** يتطلب Node.js 22.12 أو أحدث. نفّذ `npm install`، ثم انسخ `.dev.vars.example` إلى `.dev.vars` وضع فيه مفاتيحك: `ELEVENLABS_API_KEY` و`GEMINI_API_KEY` و`ADMIN_SETUP_CODE`. لتحسين الترقيم بمفتاح Gemini نفسه، أضف القيم الأربع الموضحة في قسم [Run it locally](#run-it-locally) (ومنها `ENHANCE_REASONING_EFFORT=minimal` لأن Gemini يرفض القيمة `none`). للتجربة بدون مفاتيح وبدون تكلفة شغّل `npm run mock:providers`. بعدها نفّذ `npm run build` مرة واحدة ثم `npm run dev`. لا ترفع ملف `.dev.vars` ولا تشارك محتواه.
+**التشغيل المحلي:** يتطلب Node.js 22.12 أو أحدث. نفّذ `npm install`، ثم انسخ `.dev.vars.example` إلى `.dev.vars` وضع فيه مفاتيحك: `ELEVENLABS_API_KEY` و`GEMINI_API_KEY` و`ADMIN_SETUP_CODE`. لتفعيل تحسين الترقيم بمفتاح Gemini نفسه، أضف `OPENAI_API_KEY` وقيمته مفتاح Gemini (الإعدادات الباقية موجودة في `wrangler.toml`)، وأضفه كذلك سرًّا في Cloudflare للموقع المباشر. للتجربة بدون مفاتيح وبدون تكلفة شغّل `npm run mock:providers`. بعدها نفّذ `npm run build` مرة واحدة ثم `npm run dev`. لا ترفع ملف `.dev.vars` ولا تشارك محتواه.
 
 **الخصوصية:**
 - الخادم **لا يحفظ أي تسجيل صوتي ولا ملاحظات ولا تقارير**.

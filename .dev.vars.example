@@ -2,7 +2,8 @@
 # Real keys work locally, or point the base URLs at the mock server (npm run mock:providers).
 
 ELEVENLABS_API_KEY=your-elevenlabs-key
-# OPENAI_API_KEY=your-openai-key
+# Optional AI clean-up: wrangler.toml points it at Gemini, so this is your Gemini key again.
+# OPENAI_API_KEY=your-gemini-key
 # Handoff tab (SBAR reports). Without it, only the fixed example works.
 # GEMINI_API_KEY=your-gemini-key
 ADMIN_SETUP_CODE=choose-a-long-random-setup-code
