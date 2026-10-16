@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [0.1.0] - 2026-10-16
 
-First release: WhisperToCursor as a website.
+First release of VoiceScribe (originally named WhisperToCursor) as a website.
 
 ### Added
 
@@ -24,4 +24,4 @@ First release: WhisperToCursor as a website.
 - Cloudflare Pages Functions API with D1, GitHub Actions CI on Linux/macOS/Windows, automatic deployment from
   `main`, tagged releases, mock providers for local development, and documentation.
 
-[0.1.0]: https://github.com/ibrahimbaabdullah-jpg/WhisperToCursor/releases/tag/v0.1.0
+[0.1.0]: https://github.com/ibrahimbaabdullah-jpg/VoiceScribe/releases/tag/v0.1.0

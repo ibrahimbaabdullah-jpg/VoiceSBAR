@@ -46,7 +46,7 @@ note. You can also click **Improve punctuation (AI)** after editing.
 
 ## Keyboard shortcut
 
-The shortcut works only while the WhisperToCursor tab is open and active: websites cannot see keys pressed in other
+The shortcut works only while the VoiceScribe tab is open and active: websites cannot see keys pressed in other
 programs. <kbd>Space</kbd> is ignored while you are typing in a text box; in **Settings** you can choose another key,
 for example <kbd>F2</kbd>, which works everywhere on the page.
 

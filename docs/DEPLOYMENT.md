@@ -1,6 +1,6 @@
 # Deployment guide
 
-This guide puts WhisperToCursor online at an address like `https://whispertocursor.pages.dev`, with automatic
+This guide puts VoiceScribe online at an address like `https://voicescribe-ai.pages.dev`, with automatic
 deployment every time an approved change lands on the `main` branch. You do not need to write code. Plan on
 about 30 minutes.
 
@@ -59,7 +59,7 @@ On the **Variables** tab, add:
 | Name | Value |
 | --- | --- |
 | `D1_DATABASE_ID` | the database ID from step 2 |
-| `PAGES_PROJECT_NAME` *(optional)* | defaults to `whispertocursor`; it becomes `<name>.pages.dev` |
+| `PAGES_PROJECT_NAME` *(optional)* | defaults to `voicescribe-ai`; it becomes `<name>.pages.dev` |
 | `SITE_URL` *(optional)* | your site address, shown as a link on each deployment |
 
 The deploy job stays skipped until `D1_DATABASE_ID` exists, so nothing breaks before you finish.
@@ -84,7 +84,7 @@ When it is green, open `https://<project-name>.pages.dev`. The site loads, but t
    your OpenAI organisation is recommended.
 3. Choose an **admin setup code**: a long random phrase only you know, for example from a password manager
    (at least 20 characters).
-4. In Cloudflare: **Workers & Pages → whispertocursor → Settings → Variables and Secrets → Add**. For each item,
+4. In Cloudflare: **Workers & Pages → voicescribe-ai → Settings → Variables and Secrets → Add**. For each item,
    choose type **Secret** and environment **Production**:
 
 | Secret name | Value |
@@ -95,7 +95,7 @@ When it is green, open `https://<project-name>.pages.dev`. The site loads, but t
 
 5. Secrets take effect on the next deployment, so run **Actions → Deploy → Run workflow** again.
 
-Command-line alternative: `npx wrangler pages secret put ELEVENLABS_API_KEY --project-name whispertocursor`.
+Command-line alternative: `npx wrangler pages secret put ELEVENLABS_API_KEY --project-name voicescribe-ai`.
 
 ## 7. Create your admin account
 

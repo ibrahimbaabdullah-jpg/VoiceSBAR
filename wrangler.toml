@@ -2,7 +2,7 @@
 # Secrets (ELEVENLABS_API_KEY, OPENAI_API_KEY, ADMIN_SETUP_CODE) are NOT set here:
 # add them in the Cloudflare dashboard or with `wrangler pages secret put`. See docs/DEPLOYMENT.md.
 
-name = "whispertocursor"
+name = "voicescribe-ai"
 pages_build_output_dir = "./dist"
 compatibility_date = "2026-09-01"
 

@@ -1,11 +1,13 @@
-# WhisperToCursor
+# VoiceScribe
+
+**by Ibrahim Baabdullah · AI-Powered Speech-to-Text**
 
 **Speak Arabic, English, or both in the same sentence, and get accurate text you can paste anywhere.**
 
-🌐 **Live site: [whispertocursor.pages.dev](https://whispertocursor.pages.dev/)** (invite-only accounts)
+🌐 **Live site: [voicescribe-ai.pages.dev](https://voicescribe-ai.pages.dev/)** (invite-only accounts)
 · [العربية](#نبذة-عن-المشروع) · [Tech stack](#tech-stack)
 
-WhisperToCursor is a free, open-source dictation website. Hold a button (or a key), speak, let go, and the
+VoiceScribe is a free, open-source dictation website. Hold a button (or a key), speak, let go, and the
 transcript appears in an editor, ready to copy. Speech recognition is done by
 [ElevenLabs Scribe v2](https://elevenlabs.io/speech-to-text). An optional AI step can tidy up punctuation.
 It runs on Cloudflare's free tier and is meant for a small group of about 5–10 people.
@@ -30,7 +32,7 @@ It runs on Cloudflare's free tier and is meant for a small group of about 5–10
   transcription and never stored by this site. Transcripts are never stored on the server.
 
 > **What a website can't do:** browsers do not let websites listen for keyboard shortcuts in other apps or type
-> into other applications. WhisperToCursor works while its tab is open and focused, and gives you the text to paste
+> into other applications. VoiceScribe works while its tab is open and focused, and gives you the text to paste
 > wherever you need it (one click on **Copy text**, or automatic copy, then <kbd>Ctrl</kbd>+<kbd>V</kbd> /
 > <kbd>⌘</kbd>+<kbd>V</kbd>).
 
@@ -154,9 +156,9 @@ scripts/             mock ElevenLabs/OpenAI server for local use
 
 <div dir="rtl" lang="ar">
 
-🌐 **رابط الموقع: [whispertocursor.pages.dev](https://whispertocursor.pages.dev/)** (الدخول بدعوة فقط)
+🌐 **رابط الموقع: [voicescribe-ai.pages.dev](https://voicescribe-ai.pages.dev/)** (الدخول بدعوة فقط)
 
-**WhisperToCursor** موقع مجاني ومفتوح المصدر لتحويل الكلام إلى نص. تكلّم بالعربي أو الإنجليزي أو بالاثنين في نفس الجملة، ويطلع لك النص جاهز تنسخه وتلصقه في أي مكان.
+**VoiceScribe** موقع مجاني ومفتوح المصدر لتحويل الكلام إلى نص. تكلّم بالعربي أو الإنجليزي أو بالاثنين في نفس الجملة، ويطلع لك النص جاهز تنسخه وتلصقه في أي مكان.
 
 **كيف يشتغل؟** تضغط مع الاستمرار على زر الميكروفون (أو مفتاح المسافة) وتتكلم، وأول ما تترك الزر يتحوّل كلامك لنص ويُنسخ تلقائيًا.
 

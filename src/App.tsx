@@ -195,7 +195,7 @@ function SignedInApp({
       </main>
       <footer className="footer muted">
         Speech-to-text by ElevenLabs Scribe. Recordings are sent for transcription and are not stored by this
-        site. <a href="https://github.com/ibrahimbaabdullah-jpg/WhisperToCursor" target="_blank" rel="noreferrer">Open source (MIT)</a>
+        site. <a href="https://github.com/ibrahimbaabdullah-jpg/VoiceScribe" target="_blank" rel="noreferrer">Open source (MIT)</a>
       </footer>
     </div>
   );
