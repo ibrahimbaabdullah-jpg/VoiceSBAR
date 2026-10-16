@@ -110,7 +110,7 @@ To make sure only reviewed changes go live:
 
 1. **Settings → Branches → Add branch ruleset** (or *branch protection rule*) for `main`:
    - Require a pull request before merging, with at least 1 approval.
-   - Require status checks to pass: select the three **Lint, typecheck, test, build** checks.
+   - Require status checks to pass: select the **Lint, typecheck, test, build** check.
    - Block force pushes.
 2. *(Optional)* **Settings → Environments → production → Required reviewers**: someone must click
    **Approve** before each deployment starts.
