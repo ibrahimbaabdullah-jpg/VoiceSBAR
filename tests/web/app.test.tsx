@@ -89,7 +89,8 @@ describe('signing in', () => {
     await user.type(await screen.findByLabelText('Username'), 'Sara');
     await user.type(screen.getByLabelText('Password'), 'my secret password');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(await screen.findByRole('button', { name: /^Record —/ })).toBeInTheDocument();
+    // Signed in: the app opens on the Handoff tab, in Arabic by default.
+    expect(await screen.findByRole('region', { name: 'تسليم' })).toBeInTheDocument();
 
     const [, init] = callsTo(fetchMock, 'POST', '/api/auth/login')[0]!;
     const body = JSON.parse((init as RequestInit).body as string);

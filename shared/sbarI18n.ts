@@ -50,3 +50,94 @@ export function format(template: string, values: Record<string, string | number>
     return comma && typeof value === 'number' ? value.toLocaleString('en-US') : String(value);
   });
 }
+
+/**
+ * The recorder (DictatePanel) is shared with the English-only Dictate tab, so its strings stay
+ * English in the code and are translated here only when the Handoff tab is in Arabic. Templates use
+ * the same `{name}` placeholders as `format`. Arabic for the idle, live and busy states and the
+ * mode buttons follows the VoiceSBAR design system's HandoffScreen.
+ */
+export const RECORDER_AR: Record<string, string> = {
+  // Recorder controls
+  Language: 'اللغة',
+  'Auto (Arabic + English)': 'تلقائي (العربية + الإنجليزية)',
+  'Mostly Arabic': 'غالبًا العربية',
+  'Mostly English': 'غالبًا الإنجليزية',
+  'Recording mode': 'طريقة التسجيل',
+  'Hold to talk': 'اضغط مطولًا للتحدث',
+  'Tap to toggle': 'نقرة للتبديل',
+  'Tap to start': 'انقر للبدء',
+  'Tap to stop': 'انقر للإيقاف',
+  'Record — hold to talk': 'تسجيل — اضغط مطولًا للتحدث',
+  'Record — tap to start': 'تسجيل — انقر للبدء',
+  'Recording — release to stop': 'جارٍ التسجيل — اترك الزر للإيقاف',
+  'Recording — tap to stop': 'جارٍ التسجيل — انقر للإيقاف',
+  'or hold {key} on your keyboard': 'أو اضغط مطولًا على {key} في لوحة المفاتيح',
+  'or press {key} to start and stop': 'أو اضغط {key} للبدء والإيقاف',
+  'Release to transcribe': 'اترك الزر للتفريغ',
+  'Tap again to transcribe': 'انقر مرة أخرى للتفريغ',
+  'Esc to discard': 'Esc للتجاهل',
+  'Starting microphone…': 'جارٍ تشغيل الميكروفون…',
+  'Listening… {elapsed} / {max}': 'جارٍ التسجيل… {elapsed} / {max}',
+  'Transcribing…': 'جارٍ التفريغ…',
+  Ready: 'جاهز',
+  'AI clean-up': 'تحسين بالذكاء الاصطناعي',
+  'My vocabulary ({count}) · extra cost': 'مفرداتي ({count}) · تكلفة إضافية',
+  'Adds an extra ElevenLabs charge (keyterm prompting). See the Vocabulary page.':
+    'يضيف رسومًا إضافية من ElevenLabs (تلميح المصطلحات). راجع صفحة المفردات.',
+  // Editor
+  'Text direction': 'اتجاه النص',
+  Auto: 'تلقائي',
+  'Each paragraph follows its own language': 'كل فقرة تتبع لغتها',
+  'Right to left': 'من اليمين إلى اليسار',
+  'Left to right': 'من اليسار إلى اليمين',
+  'Last: {language} · {seconds} s': 'آخر تسجيل: {language} · {seconds} ث',
+  '{count} vocabulary terms': '{count} من المفردات',
+  'AI cleaned': 'حُسّن بالذكاء الاصطناعي',
+  Arabic: 'العربية',
+  English: 'الإنجليزية',
+  Unknown: 'غير معروفة',
+  'Improve punctuation (AI)': 'تحسين الترقيم (ذكاء اصطناعي)',
+  Undo: 'تراجع',
+  // Notices and their buttons
+  Discard: 'تجاهل',
+  Retry: 'إعادة المحاولة',
+  'Send anyway': 'أرسل على أي حال',
+  'Done.': 'تم.',
+  "You're offline. Your recording is kept — press Retry when you're back online.":
+    'أنت غير متصل بالإنترنت. احتفظنا بتسجيلك — اضغط «إعادة المحاولة» عند عودة الاتصال.',
+  'No speech was recognized in that recording.': 'لم يُتعرَّف على كلام في هذا التسجيل.',
+  'Transcription failed.': 'تعذّر التفريغ.',
+  "{message} Your recording is kept, so you don't need to speak again.":
+    '{message} احتفظنا بتسجيلك، فلا داعي للتحدث مرة أخرى.',
+  'Keep holding the button while you speak, then let go.': 'استمر بالضغط على الزر أثناء الكلام، ثم اتركه.',
+  'Keep holding the button (or {key}) while you speak, then let go.': 'استمر بالضغط على الزر (أو {key}) أثناء الكلام، ثم اتركه.',
+  "We didn't hear anything, so nothing was sent and no credits were used. Check that the right microphone is selected in Settings.":
+    'لم نسمع شيئًا، لذلك لم يُرسل شيء ولم يُستهلك أي رصيد. تأكد من اختيار الميكروفون الصحيح في الإعدادات.',
+  'You reached the maximum recording length, so the recording was sent automatically.':
+    'وصلت إلى أقصى مدة للتسجيل، فأُرسل التسجيل تلقائيًا.',
+  'Recording discarded. Nothing was sent.': 'تم تجاهل التسجيل. لم يُرسل شيء.',
+  'Punctuation and formatting improved. Use Undo to go back.': 'تحسّنت علامات الترقيم والتنسيق. استخدم «تراجع» للعودة.',
+  'The text already looks good — nothing was changed.': 'النص جيد بالفعل — لم يتغير شيء.',
+  'AI clean-up was not applied.': 'لم يُطبَّق التحسين بالذكاء الاصطناعي.',
+  'AI clean-up failed.': 'تعذّر التحسين بالذكاء الاصطناعي.',
+  'This browser cannot record audio. Please use a recent Chrome, Edge, Firefox or Safari over https.':
+    'لا يستطيع هذا المتصفح تسجيل الصوت. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari عبر https.',
+  'This browser cannot record audio on an insecure (http) page. Please use a recent Chrome, Edge, Firefox or Safari over https.':
+    'لا يستطيع هذا المتصفح تسجيل الصوت في صفحة غير آمنة (http). استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari عبر https.',
+  // Microphone errors (src/audio/recorder.ts)
+  'Microphone access is blocked. Click the lock or site-settings icon in the address bar, allow the microphone, then try again.':
+    'الوصول إلى الميكروفون محظور. انقر على رمز القفل أو إعدادات الموقع في شريط العنوان، واسمح بالميكروفون، ثم حاول مجددًا.',
+  'No microphone was found. Plug one in or pick another in Settings.': 'لم يُعثر على ميكروفون. وصّل ميكروفونًا أو اختر غيره من الإعدادات.',
+  'The microphone could not be started. Another app may be using it; close it and try again.':
+    'تعذّر تشغيل الميكروفون. قد يكون تطبيق آخر يستخدمه؛ أغلقه ثم حاول مجددًا.',
+  'The microphone only works on a secure (https) page.': 'لا يعمل الميكروفون إلا في صفحة آمنة (https).',
+  'The microphone could not be started. Please try again.': 'تعذّر تشغيل الميكروفون. حاول مجددًا.',
+  'This browser cannot record audio. Please use a recent Chrome, Edge, Firefox or Safari.':
+    'لا يستطيع هذا المتصفح تسجيل الصوت. استخدم إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari.',
+};
+
+/** Translates a recorder string (English source) and fills its placeholders. Unknown text stays as is. */
+export function trRecorder(text: string, language: SbarLanguage, values: Record<string, string | number> = {}): string {
+  return format(language === 'ar' ? (RECORDER_AR[text] ?? text) : text, values);
+}

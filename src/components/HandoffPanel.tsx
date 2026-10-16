@@ -183,6 +183,7 @@ export function HandoffPanel({ me, settings, updateSettings, vocabularyCount, on
 
   const sourceLabel = source.dictated && source.typed ? 'مُملى ثم عُدّل' : source.dictated ? 'مُملى' : source.typed ? 'مكتوب' : null;
   const handoff: HandoffOptions = {
+    language,
     sectionLabel: t('01 · إملاء الملاحظات'),
     editorId: 'handoff-notes',
     label: t('ملاحظات الحالة الوهمية'),

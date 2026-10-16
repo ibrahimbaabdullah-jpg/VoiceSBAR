@@ -56,6 +56,26 @@ describe('Handoff tab', () => {
     expect(within(region).getByText('للتعلّم بالحالات الوهمية فقط. لا تُدخل أسماء أو بيانات مرضى حقيقيين. التقرير مسودة للمراجعة وليس قرارًا سريريًا.')).toBeInTheDocument();
   });
 
+  it('labels the recorder in Arabic, while the Dictate tab stays English', async () => {
+    server();
+    const media = installFakeMedia();
+    render(<App />);
+    const region = await screen.findByRole('region', { name: 'تسليم' });
+    const record = within(region).getByRole('button', { name: 'تسجيل — اضغط مطولًا للتحدث' });
+    expect(within(region).getByText('جاهز')).toBeInTheDocument();
+    expect(within(region).getByRole('group', { name: 'طريقة التسجيل' })).toHaveTextContent('نقرة للتبديل');
+    expect(within(region).getByRole('option', { name: 'تلقائي (العربية + الإنجليزية)' })).toBeInTheDocument();
+    expect(within(region).queryByText('Hold to talk')).not.toBeInTheDocument();
+
+    fireEvent.pointerDown(record, { button: 0, pointerId: 1 });
+    expect(await within(region).findByText('أكد أولًا أن الحالة وهمية وأنك توافق على الإرسال، ثم ابدأ التسجيل.')).toBeInTheDocument();
+    expect(media.getUserMedia).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+    expect(screen.getByRole('button', { name: 'Record — hold to talk' })).toBeInTheDocument();
+    expect(screen.getByText('Ready')).toBeInTheDocument();
+  });
+
   it('does not open the microphone or call Gemini before consent', async () => {
     const fetchMock = server();
     const media = installFakeMedia();

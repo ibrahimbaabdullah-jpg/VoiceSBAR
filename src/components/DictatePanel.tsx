@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { EnhancementResult, MeResponse, UsageSummary } from '../../shared/api';
+import type { SbarLanguage } from '../../shared/sbar';
+import { trRecorder } from '../../shared/sbarI18n';
 import { api, ApiError } from '../api/client';
 import { recordingSupported, SILENCE_THRESHOLD, type Recording } from '../audio/recorder';
 import { useHotkey } from '../hooks/useHotkey';
@@ -26,6 +28,8 @@ interface ResultInfo {
 
 /** Turns the panel into the capture stage of the Handoff tab (the SBAR notes field). */
 export interface HandoffOptions {
+  /** The Handoff tab's language; the recorder's own labels follow it (the Dictate tab stays English). */
+  language: SbarLanguage;
   sectionLabel: string;
   editorId: string;
   label: string;
@@ -77,6 +81,12 @@ export function DictatePanel({
   const caretRef = useRef<number | null>(null);
   const supported = recordingSupported();
   const { features } = me;
+  const language = handoff?.language ?? 'en';
+  /** Recorder strings are English here and translated only for the Arabic Handoff tab. */
+  const L = useCallback(
+    (english: string, values?: Record<string, string | number>) => trRecorder(english, language, values),
+    [language],
+  );
   const useKeyterms = settings.useVocabulary && features.keytermsAvailable && vocabularyCount > 0;
   const wantEnhance = settings.enhance && features.enhancementAvailable;
 
@@ -101,12 +111,12 @@ export function DictatePanel({
     [setText, settings.insertMode],
   );
 
-  const discardAction = useCallback(() => ({ label: 'Discard', onClick: () => setNotice(null) }), []);
+  const discardAction = useCallback(() => ({ label: L('Discard'), onClick: () => setNotice(null) }), [L]);
   // Retry buttons call the latest `send` through a ref (it cannot reference itself directly).
   const sendRef = useRef<(recording: Recording) => Promise<void>>(async () => undefined);
   const retryActions = useCallback(
-    (recording: Recording) => [{ label: 'Retry', onClick: () => void sendRef.current(recording) }, discardAction()],
-    [discardAction],
+    (recording: Recording) => [{ label: L('Retry'), onClick: () => void sendRef.current(recording) }, discardAction()],
+    [discardAction, L],
   );
 
   const send = useCallback(
@@ -114,7 +124,7 @@ export function DictatePanel({
       if (navigator.onLine === false) {
         setNotice({
           kind: 'error',
-          message: "You're offline. Your recording is kept — press Retry when you're back online.",
+          message: L("You're offline. Your recording is kept — press Retry when you're back online."),
           actions: retryActions(recording),
         });
         return;
@@ -137,7 +147,7 @@ export function DictatePanel({
           enhancement: res.enhancement,
         });
         if (!res.text) {
-          setNotice({ kind: 'info', message: 'No speech was recognized in that recording.' });
+          setNotice({ kind: 'info', message: L('No speech was recognized in that recording.') });
           return;
         }
         applyText(res.text);
@@ -164,21 +174,21 @@ export function DictatePanel({
               : { kind: 'success', message: `Done — the new text is on your clipboard. Paste it anywhere with Ctrl+V (⌘V on Mac).${enhanceNote}` },
           );
         } else {
-          setNotice({ kind: enhanceNote ? 'warn' : 'success', message: `Done.${enhanceNote}` });
+          setNotice({ kind: enhanceNote ? 'warn' : 'success', message: `${L('Done.')}${enhanceNote}` });
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Transcription failed.';
+        const message = err instanceof Error ? err.message : L('Transcription failed.');
         const keep = !(err instanceof ApiError && ['audio_invalid', 'audio_too_short', 'audio_unsupported'].includes(err.code));
         setNotice({
           kind: 'error',
-          message: keep ? `${message} Your recording is kept, so you don't need to speak again.` : message,
+          message: keep ? L("{message} Your recording is kept, so you don't need to speak again.", { message }) : message,
           actions: keep ? retryActions(recording) : undefined,
         });
       } finally {
         setBusy(false);
       }
     },
-    [settings.language, settings.removeFillers, settings.autoCopy, wantEnhance, useKeyterms, applyText, onUsage, onTranscribed, retryActions, handoff],
+    [settings.language, settings.removeFillers, settings.autoCopy, wantEnhance, useKeyterms, applyText, onUsage, onTranscribed, retryActions, handoff, L],
   );
 
   useLayoutEffect(() => {
@@ -190,24 +200,26 @@ export function DictatePanel({
       if (settings.mode === 'hold' && reason === 'stopped' && recording.durationSeconds < MIN_HOLD_SECONDS) {
         setNotice({
           kind: 'info',
-          message: `Keep holding the button${settings.hotkey ? ` (or ${keyLabel(settings.hotkey)})` : ''} while you speak, then let go.`,
+          message: settings.hotkey
+            ? L('Keep holding the button (or {key}) while you speak, then let go.', { key: keyLabel(settings.hotkey) })
+            : L('Keep holding the button while you speak, then let go.'),
         });
         return;
       }
       if (settings.skipSilence && recording.peakLevel < SILENCE_THRESHOLD) {
         setNotice({
           kind: 'warn',
-          message: "We didn't hear anything, so nothing was sent and no credits were used. Check that the right microphone is selected in Settings.",
-          actions: [{ label: 'Send anyway', onClick: () => void send(recording) }, discardAction()],
+          message: L("We didn't hear anything, so nothing was sent and no credits were used. Check that the right microphone is selected in Settings."),
+          actions: [{ label: L('Send anyway'), onClick: () => void send(recording) }, discardAction()],
         });
         return;
       }
       if (reason === 'limit') {
-        setNotice({ kind: 'info', message: 'You reached the maximum recording length, so the recording was sent automatically.' });
+        setNotice({ kind: 'info', message: L('You reached the maximum recording length, so the recording was sent automatically.') });
       }
       void send(recording);
     },
-    [settings.mode, settings.hotkey, settings.skipSilence, send, discardAction],
+    [settings.mode, settings.hotkey, settings.skipSilence, send, discardAction, L],
   );
 
   const recorder = useRecorder({
@@ -215,7 +227,7 @@ export function DictatePanel({
     keepMicOpen: settings.keepMicOpen,
     maxSeconds: features.maxRecordingSeconds,
     onFinished,
-    onError: (err) => setNotice({ kind: 'error', message: err.message }),
+    onError: (err) => setNotice({ kind: 'error', message: L(err.message) }),
   });
 
   const recording = recorder.state === 'recording' || recorder.state === 'starting';
@@ -248,12 +260,12 @@ export function DictatePanel({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         recorder.cancel();
-        setNotice({ kind: 'info', message: 'Recording discarded. Nothing was sent.' });
+        setNotice({ kind: 'info', message: L('Recording discarded. Nothing was sent.') });
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [recording, recorder]);
+  }, [recording, recorder, L]);
 
   const doCopy = async () => {
     if (!text) return;
@@ -277,14 +289,14 @@ export function DictatePanel({
       if (res.enhancement.status === 'applied') {
         setUndoText(text);
         setText(res.text);
-        setNotice({ kind: 'success', message: 'Punctuation and formatting improved. Use Undo to go back.' });
+        setNotice({ kind: 'success', message: L('Punctuation and formatting improved. Use Undo to go back.') });
       } else if (res.enhancement.status === 'unchanged') {
-        setNotice({ kind: 'info', message: 'The text already looks good — nothing was changed.' });
+        setNotice({ kind: 'info', message: L('The text already looks good — nothing was changed.') });
       } else {
-        setNotice({ kind: 'warn', message: res.enhancement.message ?? 'AI clean-up was not applied.' });
+        setNotice({ kind: 'warn', message: res.enhancement.message ?? L('AI clean-up was not applied.') });
       }
     } catch (err) {
-      setNotice({ kind: 'error', message: err instanceof Error ? err.message : 'AI clean-up failed.' });
+      setNotice({ kind: 'error', message: err instanceof Error ? err.message : L('AI clean-up failed.') });
     } finally {
       setBusy(false);
     }
@@ -301,40 +313,55 @@ export function DictatePanel({
     URL.revokeObjectURL(url);
   };
 
-  const holdHint = settings.mode === 'hold' ? 'Hold to talk' : recording ? 'Tap to stop' : 'Tap to start';
+  const holdHint = L(settings.mode === 'hold' ? 'Hold to talk' : recording ? 'Tap to stop' : 'Tap to start');
   const keyHint =
     settings.hotkey &&
-    (settings.mode === 'hold'
-      ? `or hold ${keyLabel(settings.hotkey)} on your keyboard`
-      : `or press ${keyLabel(settings.hotkey)} to start and stop`);
+    L(settings.mode === 'hold' ? 'or hold {key} on your keyboard' : 'or press {key} to start and stop', {
+      key: keyLabel(settings.hotkey),
+    });
   const statusText = recorder.state === 'starting'
-    ? 'Starting microphone…'
+    ? L('Starting microphone…')
     : recorder.state === 'recording'
-      ? `Listening… ${formatClock(recorder.elapsed)} / ${formatClock(features.maxRecordingSeconds)}`
+      ? L('Listening… {elapsed} / {max}', {
+          elapsed: formatClock(recorder.elapsed),
+          max: formatClock(features.maxRecordingSeconds),
+        })
       : recorder.state === 'stopping' || busy
-        ? 'Transcribing…'
-        : 'Ready';
+        ? L('Transcribing…')
+        : L('Ready');
+  const recordLabel = L(
+    recording
+      ? settings.mode === 'hold'
+        ? 'Recording — release to stop'
+        : 'Recording — tap to stop'
+      : settings.mode === 'hold'
+        ? 'Record — hold to talk'
+        : 'Record — tap to start',
+  );
 
   return (
     <section className="dictate" aria-label={handoff ? handoff.sectionLabel : 'Dictation'}>
       {!supported && (
         <p className="notice error" role="alert">
-          This browser cannot record audio{window.isSecureContext ? '' : ' on an insecure (http) page'}. Please use a recent
-          Chrome, Edge, Firefox or Safari over https.
+          {L(
+            window.isSecureContext
+              ? 'This browser cannot record audio. Please use a recent Chrome, Edge, Firefox or Safari over https.'
+              : 'This browser cannot record audio on an insecure (http) page. Please use a recent Chrome, Edge, Firefox or Safari over https.',
+          )}
         </p>
       )}
 
       <div className="recorder card">
         <div className="quick-options">
           <label className="select-inline">
-            <span>Language</span>
+            <span>{L('Language')}</span>
             <select value={settings.language} onChange={(e) => updateSettings({ language: e.target.value as Settings['language'] })}>
-              <option value="auto">Auto (Arabic + English)</option>
-              <option value="ar">Mostly Arabic</option>
-              <option value="en">Mostly English</option>
+              <option value="auto">{L('Auto (Arabic + English)')}</option>
+              <option value="ar">{L('Mostly Arabic')}</option>
+              <option value="en">{L('Mostly English')}</option>
             </select>
           </label>
-          <div className="segmented" role="group" aria-label="Recording mode">
+          <div className="segmented" role="group" aria-label={L('Recording mode')}>
             <button
               type="button"
               className={settings.mode === 'hold' ? 'on' : ''}
@@ -342,7 +369,7 @@ export function DictatePanel({
               onClick={() => updateSettings({ mode: 'hold' })}
               disabled={recording}
             >
-              Hold to talk
+              {L('Hold to talk')}
             </button>
             <button
               type="button"
@@ -351,7 +378,7 @@ export function DictatePanel({
               onClick={() => updateSettings({ mode: 'toggle' })}
               disabled={recording}
             >
-              Tap to toggle
+              {L('Tap to toggle')}
             </button>
           </div>
         </div>
@@ -362,11 +389,7 @@ export function DictatePanel({
             className={`record-btn ${recording ? 'live' : ''} ${busy ? 'busy' : ''}`}
             style={{ ['--level' as string]: recorder.level.toFixed(3) }}
             aria-pressed={recording}
-            aria-label={
-              recording
-                ? `Recording — ${settings.mode === 'hold' ? 'release' : 'tap'} to stop`
-                : `Record — ${holdHint.toLowerCase()}`
-            }
+            aria-label={recordLabel}
             disabled={!supported || (busy && !recording)}
             onPointerDown={(e) => {
               if (settings.mode !== 'hold' || e.button !== 0) return;
@@ -397,13 +420,13 @@ export function DictatePanel({
             <div className="hint">
               {recording ? (
                 <>
-                  {settings.mode === 'hold' ? 'Release to transcribe' : 'Tap again to transcribe'}
-                  <span className="key-hint"> · Esc to discard</span>
+                  {L(settings.mode === 'hold' ? 'Release to transcribe' : 'Tap again to transcribe')}
+                  <span className="key-hint"> · {L('Esc to discard')}</span>
                 </>
               ) : (
                 <>
                   {holdHint}
-                  {keyHint && <span className="key-hint">, {keyHint}</span>}
+                  {keyHint && <span className="key-hint">{language === 'ar' ? '، ' : ', '}{keyHint}</span>}
                 </>
               )}
             </div>
@@ -411,17 +434,17 @@ export function DictatePanel({
               {features.enhancementAvailable && (
                 <label className="chip">
                   <input type="checkbox" checked={settings.enhance} onChange={(e) => updateSettings({ enhance: e.target.checked })} />
-                  AI clean-up
+                  {L('AI clean-up')}
                 </label>
               )}
               {features.keytermsAvailable && vocabularyCount > 0 && (
-                <label className="chip" title="Adds an extra ElevenLabs charge (keyterm prompting). See the Vocabulary page.">
+                <label className="chip" title={L('Adds an extra ElevenLabs charge (keyterm prompting). See the Vocabulary page.')}>
                   <input
                     type="checkbox"
                     checked={settings.useVocabulary}
                     onChange={(e) => updateSettings({ useVocabulary: e.target.checked })}
                   />
-                  My vocabulary ({vocabularyCount}) · extra cost
+                  {L('My vocabulary ({count}) · extra cost', { count: vocabularyCount })}
                 </label>
               )}
             </div>
@@ -452,7 +475,7 @@ export function DictatePanel({
             </label>
             {handoff?.chip}
           </span>
-          <div className="segmented small" role="group" aria-label="Text direction">
+          <div className="segmented small" role="group" aria-label={L('Text direction')}>
             {(['auto', 'rtl', 'ltr'] as const).map((d) => (
               <button
                 key={d}
@@ -460,9 +483,9 @@ export function DictatePanel({
                 className={settings.textDirection === d ? 'on' : ''}
                 aria-pressed={settings.textDirection === d}
                 onClick={() => updateSettings({ textDirection: d })}
-                title={d === 'auto' ? 'Each paragraph follows its own language' : d === 'rtl' ? 'Right to left' : 'Left to right'}
+                title={L(d === 'auto' ? 'Each paragraph follows its own language' : d === 'rtl' ? 'Right to left' : 'Left to right')}
               >
-                {d === 'auto' ? 'Auto' : d.toUpperCase()}
+                {d === 'auto' ? L('Auto') : d.toUpperCase()}
               </button>
             ))}
           </div>
@@ -495,9 +518,12 @@ export function DictatePanel({
           )}
           {result && (
             <span>
-              Last: {languageName(result.languageCode)} · {result.durationSeconds.toFixed(1)} s
-              {result.keytermsUsed > 0 ? ` · ${result.keytermsUsed} vocabulary terms` : ''}
-              {result.enhancement.status === 'applied' ? ' · AI cleaned' : ''}
+              {L('Last: {language} · {seconds} s', {
+                language: L(languageName(result.languageCode)),
+                seconds: result.durationSeconds.toFixed(1),
+              })}
+              {result.keytermsUsed > 0 ? ` · ${L('{count} vocabulary terms', { count: result.keytermsUsed })}` : ''}
+              {result.enhancement.status === 'applied' ? ` · ${L('AI cleaned')}` : ''}
             </span>
           )}
         </div>
@@ -509,7 +535,7 @@ export function DictatePanel({
           )}
           {features.enhancementAvailable && (
             <button type="button" className="btn" onClick={() => void doEnhance()} disabled={!text.trim() || busy}>
-              Improve punctuation (AI)
+              {L('Improve punctuation (AI)')}
             </button>
           )}
           {undoText !== null && (
@@ -521,7 +547,7 @@ export function DictatePanel({
                 setUndoText(null);
               }}
             >
-              Undo
+              {L('Undo')}
             </button>
           )}
           {!handoff && (
