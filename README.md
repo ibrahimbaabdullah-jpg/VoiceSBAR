@@ -2,6 +2,8 @@
 
 **by Ibrahim Baabdullah · Dictate nursing notes, get a source-checked SBAR handoff**
 
+🌐 **Live site: [voicesbar.pages.dev](https://voicesbar.pages.dev)** (invite-only accounts)
+
 [العربية](#نبذة-عن-المشروع) · [Tech stack](#tech-stack) · [Run it locally](#run-it-locally) · [Privacy](#privacy) · [Credits](#credits-and-licence)
 
 VoiceSBAR is a bilingual (Arabic by default, plus English) educational web app. You dictate nursing notes about a
@@ -166,6 +168,8 @@ this project is not affiliated with them or with AHRQ.
 ## نبذة عن المشروع
 
 <div dir="rtl" lang="ar">
+
+🌐 **الموقع المباشر: [voicesbar.pages.dev](https://voicesbar.pages.dev)** (الحسابات بدعوة فقط)
 
 **VoiceSBAR** أداة تعليمية بالعربية (الافتراضية) والإنجليزية: تُملي ملاحظات تمريضية عن **حالة وهمية**، فتتحوّل إلى تقرير تسليم بصيغة **SBAR**: الوضع، الخلفية، التقييم، والتوصية، مع قائمة تنبّه إلى المعلومات الناقصة أو غير المكتملة.
 
