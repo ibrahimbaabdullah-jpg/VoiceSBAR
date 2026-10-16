@@ -7,6 +7,13 @@ updates:
     groups:
       dependencies:
         patterns: ['*']
+    ignore:
+      # typescript-eslint only supports TypeScript < 6.1; upgrade both together once it supports newer versions.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      # Keep Node.js type definitions on the Node 22 runtime used in CI and local development.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
