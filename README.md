@@ -129,7 +129,8 @@ See [Security](SECURITY.md) and [Architecture](docs/ARCHITECTURE.md) for details
 
 VoiceSBAR deploys to Cloudflare Pages the same way VoiceScribe does. Follow the
 [Deployment guide](docs/DEPLOYMENT.md), with two differences: also add `GEMINI_API_KEY` as a Cloudflare secret, and
-set the `PAGES_PROJECT_NAME` repository variable if you do not want the default `voicescribe-ai` name. The
+use a D1 database of its own. The default Pages project name is `voicesbar` (`voicesbar.pages.dev`); set the
+`PAGES_PROJECT_NAME` repository variable to change it. The
 [Admin guide](docs/ADMIN_GUIDE.md) covers invites, limits, password resets and cost control.
 
 ### Project layout

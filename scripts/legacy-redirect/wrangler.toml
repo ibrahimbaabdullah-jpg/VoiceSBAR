@@ -1,4 +1,0 @@
-# Redirect-only site for the old Pages project. Deployed by .github/workflows/redirect-legacy.yml.
-name = "whispertocursor"
-pages_build_output_dir = "."
-compatibility_date = "2026-09-01"

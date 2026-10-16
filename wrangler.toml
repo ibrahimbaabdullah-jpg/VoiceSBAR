@@ -2,13 +2,13 @@
 # Secrets (ELEVENLABS_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, ADMIN_SETUP_CODE) are NOT set here:
 # add them in the Cloudflare dashboard or with `wrangler pages secret put`. See docs/DEPLOYMENT.md.
 
-name = "voicescribe-ai"
+name = "voicesbar"
 pages_build_output_dir = "./dist"
 compatibility_date = "2026-09-01"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "whispertocursor"
+database_name = "voicesbar"
 # The deploy workflow replaces this with the D1_DATABASE_ID repository variable.
 # Any value works for local development.
 database_id = "00000000-0000-0000-0000-000000000000"
