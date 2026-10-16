@@ -2,6 +2,9 @@
 
 **Speak Arabic, English, or both in the same sentence, and get accurate text you can paste anywhere.**
 
+🌐 **Live site: [whispertocursor.pages.dev](https://whispertocursor.pages.dev/)** (invite-only accounts)
+· [العربية](#نبذة-عن-المشروع) · [Tech stack](#tech-stack)
+
 WhisperToCursor is a free, open-source dictation website. Hold a button (or a key), speak, let go, and the
 transcript appears in an editor, ready to copy. Speech recognition is done by
 [ElevenLabs Scribe v2](https://elevenlabs.io/speech-to-text). An optional AI step can tidy up punctuation.
@@ -131,6 +134,59 @@ migrations/          D1 schema
 tests/               server/ (API + units) and web/ (UI) tests
 scripts/             mock ElevenLabs/OpenAI server for local use
 ```
+
+## Tech stack
+
+| Area | Technologies |
+| --- | --- |
+| **Front end** | React 19, TypeScript, Vite, plain CSS (dark mode, responsive) |
+| **Browser APIs** | MediaRecorder (audio capture), Web Audio (level meter, silence detection), Clipboard API, Web Crypto (password stretching), localStorage (on-device history) |
+| **Back end** | Cloudflare Pages Functions, [Hono](https://hono.dev), Zod (request validation) |
+| **Database** | Cloudflare D1 (SQLite): accounts, sessions, usage counters. No audio or transcripts |
+| **Hosting** | Cloudflare Pages (free tier, HTTPS, global CDN) |
+| **AI** | ElevenLabs Scribe v2 (speech-to-text, automatic Arabic/English detection); optional OpenAI-compatible API (OpenAI, Gemini) for punctuation clean-up |
+| **Security** | PBKDF2-SHA256 in the browser + HMAC-SHA256 on the server, HttpOnly SameSite cookies, CSRF protection, rate limiting, strict Content-Security-Policy |
+| **Quality** | Vitest (112 tests), Testing Library + jsdom, ESLint, Wrangler (local runtime) |
+| **Automation** | GitHub Actions (CI on Linux, macOS and Windows; automatic deploy from `main`; tagged releases), Dependabot |
+| **License** | MIT |
+
+## نبذة عن المشروع
+
+<div dir="rtl" lang="ar">
+
+🌐 **رابط الموقع: [whispertocursor.pages.dev](https://whispertocursor.pages.dev/)** (الدخول بدعوة فقط)
+
+**WhisperToCursor** موقع مجاني ومفتوح المصدر لتحويل الكلام إلى نص. تكلّم بالعربي أو الإنجليزي أو بالاثنين في نفس الجملة، ويطلع لك النص جاهز تنسخه وتلصقه في أي مكان.
+
+**كيف يشتغل؟** تضغط مع الاستمرار على زر الميكروفون (أو مفتاح المسافة) وتتكلم، وأول ما تترك الزر يتحوّل كلامك لنص ويُنسخ تلقائيًا.
+
+**أهم المميزات:**
+- يتعرّف تلقائيًا على **العربي والإنجليزي في نفس الجملة**، ويكتب العربي بالحروف العربية والمصطلحات الإنجليزية بالإنجليزي، **بدون أي ترجمة**.
+- **قاموس شخصي** للمصطلحات العلمية والطبية (أسماء أدوية، أمراض، اختصارات) لرفع الدقة.
+- **تحسين اختياري بالذكاء الاصطناعي** لعلامات الترقيم، مع فحص أمان يرفض أي تغيير في الكلمات أو الأرقام أو المصطلحات.
+- محرّر نص يدعم **اليمين لليسار واليسار لليمين** تلقائيًا، وزر نسخ، وتنزيل الملف، وسجل محفوظ في جهازك فقط.
+- يشتغل على **الكمبيوتر والتابلت والجوال**.
+- **حسابات بالدعوة فقط**، مع حد يومي وشهري لكل شخص، وحد للموقع كامل، وصفحة إدارة تعرض الاستخدام والتكلفة التقريبية.
+- **الخصوصية:** مفاتيح الخدمات محفوظة في Cloudflare فقط، والخادم **لا يحفظ أي تسجيل صوتي ولا أي نص**.
+
+**التقنيات المستخدمة:**
+
+| المجال | التقنيات |
+| --- | --- |
+| **الواجهة** | React 19، TypeScript، Vite، CSS (وضع ليلي وتصميم متجاوب) |
+| **أدوات المتصفح** | MediaRecorder لتسجيل الصوت، Web Audio لمؤشر الصوت وكشف الصمت، Clipboard للنسخ، Web Crypto لتشفير كلمة المرور، localStorage لحفظ السجل في الجهاز |
+| **الخادم** | Cloudflare Pages Functions، Hono، Zod للتحقق من البيانات |
+| **قاعدة البيانات** | Cloudflare D1 (SQLite) للحسابات والجلسات وعدّاد الاستخدام، بدون أي صوت أو نصوص |
+| **الاستضافة** | Cloudflare Pages (مجانية، HTTPS، شبكة عالمية) |
+| **الذكاء الاصطناعي** | ElevenLabs Scribe v2 لتحويل الصوت لنص؛ واختياريًا OpenAI أو Gemini لتحسين علامات الترقيم |
+| **الأمان** | تشفير كلمة المرور (PBKDF2 وHMAC-SHA256)، جلسات آمنة، حماية CSRF، تحديد عدد المحاولات، سياسة أمان صارمة للصفحة |
+| **الجودة** | Vitest (112 اختبار)، Testing Library، ESLint، Wrangler |
+| **الأتمتة** | GitHub Actions (اختبارات على Linux وmacOS وWindows، ونشر تلقائي)، Dependabot |
+| **الرخصة** | MIT (مفتوح المصدر) |
+
+للتفاصيل: [دليل المستخدم (عربي وإنجليزي)](docs/USER_GUIDE.md) · [دليل النشر](docs/DEPLOYMENT.md) · [دليل المسؤول](docs/ADMIN_GUIDE.md)
+
+</div>
 
 ## Roadmap
 
