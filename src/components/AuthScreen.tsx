@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { SetupStatus } from '../../shared/api';
 import { PASSWORD_MIN_LENGTH, USERNAME_HINT, USERNAME_PATTERN } from '../../shared/rules';
 import { api } from '../api/client';
+import { APP_TAGLINE, Brand } from './Brand';
 
 type Mode = 'login' | 'register' | 'reset';
 
@@ -76,10 +77,8 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: () => void }) {
   return (
     <div className="center-screen">
       <form className="card narrow auth" onSubmit={submit} noValidate>
-        <div className="brand big">
-          <img src="/favicon.svg" alt="" width={40} height={40} />
-          <span>WhisperToCursor</span>
-        </div>
+        <Brand size="big" />
+        <p className="tagline-strong">{APP_TAGLINE}</p>
         <p className="muted tagline">Speak Arabic, English, or both. Get accurate text to paste anywhere.</p>
         <h1>{title}</h1>
 

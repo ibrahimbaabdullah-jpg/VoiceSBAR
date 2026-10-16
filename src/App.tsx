@@ -3,6 +3,7 @@ import type { MeResponse, UsageSummary } from '../shared/api';
 import { api, ApiError, onUnauthorized } from './api/client';
 import { AdminPanel } from './components/AdminPanel';
 import { AuthScreen } from './components/AuthScreen';
+import { Brand } from './components/Brand';
 import { DictatePanel } from './components/DictatePanel';
 import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -69,7 +70,7 @@ export function App() {
     return (
       <div className="center-screen">
         <div className="card narrow">
-          <h1>WhisperToCursor</h1>
+          <Brand size="big" />
           <p className="notice error" role="alert">{loadError}</p>
           <button className="btn primary" onClick={() => void load()}>Try again</button>
         </div>
@@ -139,10 +140,7 @@ function SignedInApp({
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">
-          <img src="/favicon.svg" alt="" width={28} height={28} />
-          <span>WhisperToCursor</span>
-        </div>
+        <Brand />
         <UsageMeter usage={me.usage} compact />
       </header>
       <nav className="tabs" aria-label="Sections">

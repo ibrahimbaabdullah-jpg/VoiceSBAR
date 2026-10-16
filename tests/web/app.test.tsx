@@ -55,6 +55,9 @@ describe('signing in', () => {
     render(<App />);
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
     expect(screen.getByText(/invitation only/)).toBeInTheDocument();
+    expect(screen.getByText('VoiceScribe')).toBeInTheDocument();
+    expect(screen.getByText('by Ibrahim Baabdullah')).toBeInTheDocument();
+    expect(screen.getByText('AI-Powered Speech-to-Text')).toBeInTheDocument();
   });
 
   it('guides the owner through first-run setup', async () => {
@@ -152,6 +155,8 @@ describe('dictation', () => {
     expect(media.trackStop).toHaveBeenCalled();
     // History is saved on this device only.
     expect(JSON.parse(localStorage.getItem('wtc.history.v1.sara')!)[0]).toMatchObject({ text: TRANSCRIPT });
+    // The header shows the product brand.
+    expect(screen.getByText('by Ibrahim Baabdullah')).toBeInTheDocument();
     // Usage in the header is updated from the response.
     expect(screen.getByText('1.1/30')).toBeInTheDocument();
   });

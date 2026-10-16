@@ -139,9 +139,44 @@ kbd {
   font-size: 1.1rem;
 }
 .brand.big {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   justify-content: center;
   margin-bottom: 4px;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+.brand-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.brand-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.brand-by {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.brand.big .brand-by {
+  font-size: 0.85rem;
+}
+.tagline-strong {
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 6px 0 2px;
 }
 .tagline {
   text-align: center;
@@ -837,6 +872,9 @@ textarea:focus {
     width: 100%;
   }
   .usage-compact .muted:first-child {
+    display: none;
+  }
+  .brand-tag {
     display: none;
   }
 }

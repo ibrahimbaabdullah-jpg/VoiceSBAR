@@ -1,6 +1,6 @@
 {
-  "name": "WhisperToCursor",
-  "short_name": "Dictate",
+  "name": "VoiceScribe — AI-Powered Speech-to-Text",
+  "short_name": "VoiceScribe",
   "description": "Speak Arabic, English or both and copy accurate text.",
   "start_url": "/",
   "display": "standalone",
