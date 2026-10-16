@@ -2,7 +2,7 @@
 
 **by Ibrahim Baabdullah · Dictate nursing notes, get a source-checked SBAR handoff**
 
-[العربية](#نبذة-عن-المشروع) · [Run it locally](#run-it-locally) · [Privacy](#privacy) · [Credits](#credits-and-licence)
+[العربية](#نبذة-عن-المشروع) · [Tech stack](#tech-stack) · [Run it locally](#run-it-locally) · [Privacy](#privacy) · [Credits](#credits-and-licence)
 
 VoiceSBAR is a bilingual (Arabic by default, plus English) educational web app. You dictate nursing notes about a
 **fictional** patient, and it turns them into a structured **SBAR** handoff report (Situation, Background,
@@ -35,6 +35,20 @@ on-device history, settings, and an admin page with invite-only accounts and usa
 
 A matching quote does not prove that the model interpreted it correctly. Check numbers, medications, negations
 and timings yourself.
+
+## Tech stack
+
+| Part | Technology | What it does |
+| --- | --- | --- |
+| Front end | React 19, TypeScript, Vite | The web interface, in Arabic (right to left) and English |
+| Server | Hono on Cloudflare Pages Functions | The API: sign-in, transcription, SBAR reports, admin |
+| Database | Cloudflare D1 | Accounts, sessions and usage limits only. No audio, notes or reports |
+| Speech-to-text | ElevenLabs Scribe v2 | Turns spoken Arabic, English or both into text |
+| SBAR report | Google Gemini (`gemini-3.5-flash-lite`) | One call per report with `store=false` and a fixed JSON schema |
+| AI clean-up (optional) | Gemini's OpenAI-compatible endpoint | Fixes punctuation only; rejected if any word or number changes |
+| Validation | Zod | Checks every request the server receives |
+| Tests | Vitest, Testing Library | Server, SBAR-check and interface tests, with no network or keys |
+| Tooling | Wrangler, ESLint, GitHub | Local server and deployment, code checks, source control |
 
 ## Run it locally
 
@@ -162,6 +176,20 @@ this project is not affiliated with them or with AHRQ.
 3. **كل سطر له اقتباس:** كل عبارة في التقرير مدعومة باقتباس حرفي من ملاحظاتك. يتحقق الخادم من كل اقتباس، وإذا لم يجد أحدها أو كان الرد ناقصًا **يُرفض التقرير بالكامل** ولا يُعرض.
 4. **قائمة التنبيهات:** كل بند يُصنَّف مذكورًا أو غير مكتمل أو غير مذكور أو غير واضح: الحساسية، العلامات الحيوية ووقت قياسها، التاريخ المرضي وسبب الدخول، الأدوية، الوعي، الألم، الأكسجين، الأجهزة، والخطة. لا يُستنتج من غياب المعلومة أنها طبيعية، ولا يضيف قسم التوصية خطة علاجية جديدة.
 5. **النسخ والتنزيل والطباعة** باللغة المختارة، ومثال وهمي ثابت يعمل بدون أي مفتاح.
+
+**التقنيات المستخدمة:**
+
+| الجزء | التقنية | وظيفتها |
+| --- | --- | --- |
+| الواجهة | React 19 وTypeScript وVite | واجهة الموقع بالعربية (من اليمين لليسار) والإنجليزية |
+| الخادم | Hono على Cloudflare Pages Functions | واجهة البرمجة: تسجيل الدخول، التفريغ، تقارير SBAR، الإدارة |
+| قاعدة البيانات | Cloudflare D1 | الحسابات والجلسات وحدود الاستخدام فقط، بدون صوت أو ملاحظات أو تقارير |
+| تحويل الصوت إلى نص | ElevenLabs Scribe v2 | يحوّل الكلام بالعربي أو الإنجليزي أو بالاثنين إلى نص |
+| تقرير SBAR | Google Gemini (`gemini-3.5-flash-lite`) | استدعاء واحد لكل تقرير مع `store=false` وصيغة JSON ثابتة |
+| تحسين الترقيم (اختياري) | واجهة Gemini المتوافقة مع OpenAI | يصحّح الترقيم فقط، ويُرفض إذا تغيّرت أي كلمة أو رقم |
+| التحقق من البيانات | Zod | يفحص كل طلب يصل إلى الخادم |
+| الاختبارات | Vitest وTesting Library | اختبارات الخادم وفحص الاقتباسات والواجهة، بدون إنترنت أو مفاتيح |
+| الأدوات | Wrangler وESLint وGitHub | التشغيل المحلي والنشر، فحص الكود، إدارة الشيفرة |
 
 **التشغيل المحلي:** يتطلب Node.js 22.12 أو أحدث. نفّذ `npm install`، ثم انسخ `.dev.vars.example` إلى `.dev.vars` وضع فيه مفاتيحك: `ELEVENLABS_API_KEY` و`GEMINI_API_KEY` و`ADMIN_SETUP_CODE`. لتحسين الترقيم بمفتاح Gemini نفسه، أضف القيم الأربع الموضحة في قسم [Run it locally](#run-it-locally) (ومنها `ENHANCE_REASONING_EFFORT=minimal` لأن Gemini يرفض القيمة `none`). للتجربة بدون مفاتيح وبدون تكلفة شغّل `npm run mock:providers`. بعدها نفّذ `npm run build` مرة واحدة ثم `npm run dev`. لا ترفع ملف `.dev.vars` ولا تشارك محتواه.
 
