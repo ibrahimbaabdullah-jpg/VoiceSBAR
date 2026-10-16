@@ -1,89 +1,44 @@
-# VoiceScribe
+# VoiceSBAR
 
-**by Ibrahim Baabdullah · AI-Powered Speech-to-Text**
+**by Ibrahim Baabdullah · Dictate nursing notes, get a source-checked SBAR handoff**
 
-**Speak Arabic, English, or both in the same sentence, and get accurate text you can paste anywhere.**
+[العربية](#نبذة-عن-المشروع) · [Run it locally](#run-it-locally) · [Privacy](#privacy) · [Credits](#credits-and-licence)
 
-🌐 **Live site: [voicescribe-ai.pages.dev](https://voicescribe-ai.pages.dev/)** (invite-only accounts)
-· [العربية](#نبذة-عن-المشروع) · [Tech stack](#tech-stack)
+VoiceSBAR is a bilingual (Arabic by default, plus English) educational web app. You dictate nursing notes about a
+**fictional** patient, and it turns them into a structured **SBAR** handoff report (Situation, Background,
+Assessment, Recommendation), with a checklist that flags information that is missing or incomplete.
 
-VoiceScribe is a free, open-source dictation website. Hold a button (or a key), speak, let go, and the
-transcript appears in an editor, ready to copy. Speech recognition is done by
-[ElevenLabs Scribe v2](https://elevenlabs.io/speech-to-text). An optional AI step can tidy up punctuation.
-It runs on Cloudflare's free tier and is meant for a small group of about 5–10 people.
+> **Educational use with fictional cases only. VoiceSBAR is not a medical device and is not approved for clinical
+> use. Never enter real patient data.** Every report needs human review before anyone relies on it.
 
-- **Mixed Arabic and English:** languages are detected automatically, and Arabic stays in Arabic script while
-  English terms stay in English. Nothing is ever translated.
-- **Accurate terminology:** a personal vocabulary (ElevenLabs *keyterms*) helps with drug names, diseases, genes,
-  statistics and other technical words.
-- **Optional AI clean-up:** fixes punctuation, capitals and paragraphs through the OpenAI API (or any
-  OpenAI-compatible API such as Gemini). A built-in safety check rejects the AI's version if it changed any
-  word, number, abbreviation or technical term, and keeps the original transcript instead.
-- **Push-to-talk or tap-to-toggle**, with a keyboard shortcut, a microphone picker, a live level meter, a timer
-  and a clear recording indicator.
-- **Editable text with correct right-to-left / left-to-right handling**: each paragraph follows its own language,
-  or you can force RTL or LTR.
-- **Copy Text** button, automatic copy after each dictation, and a fallback when the browser blocks clipboard access.
-- **History** stored only on your device, plus download as `.txt`.
-- **Works on computers, tablets and phones** (Chrome, Edge, Firefox, Safari, iOS and Android).
-- **Invite-only accounts** with per-person daily and monthly minute limits, a site-wide budget cap, rate limiting,
-  and an admin page with usage and an estimated monthly cost.
-- **Private by design:** API keys live only in Cloudflare secrets. Audio is forwarded to ElevenLabs for
-  transcription and never stored by this site. Transcripts are never stored on the server.
+## What it does
 
-> **What a website can't do:** browsers do not let websites listen for keyboard shortcuts in other apps or type
-> into other applications. VoiceScribe works while its tab is open and focused, and gives you the text to paste
-> wherever you need it (one click on **Copy text**, or automatic copy, then <kbd>Ctrl</kbd>+<kbd>V</kbd> /
-> <kbd>⌘</kbd>+<kbd>V</kbd>).
+1. **Dictate.** Hold the microphone button (or the <kbd>Space</kbd> key), speak Arabic, English or both, and let go.
+   Speech recognition is done by [ElevenLabs Scribe v2](https://elevenlabs.io/speech-to-text). Arabic stays in
+   Arabic script and English terms stay in English; nothing is translated. An optional AI step tidies up
+   punctuation and is rejected automatically if it changes any word, number or term.
+2. **Generate the SBAR report.** The notes go to Gemini in **one call** per report, with `store=false` and a fixed
+   JSON schema. There is no automatic retry.
+3. **Every line is backed by a quote.** Each statement in the report and each non-missing checklist entry must
+   cite an exact quote from your notes. The server checks every quote against the notes (tolerating only
+   whitespace and line-break differences). If any quote is not found, or the reply is incomplete or malformed, the
+   report is **rejected** rather than shown (it fails closed).
+4. **Review the flagged checklist.** Allergies, vital signs and when they were taken, history and reason for
+   admission, medications, consciousness, pain, oxygen, lines and devices, and the plan are each marked as
+   documented, partial, missing or unclear. A missing
+   item is never assumed to be normal, and the Recommendation section never adds a new treatment plan.
+5. **Copy, download or print** the report in the chosen language. A fixed, clearly labelled example works without
+   any API key.
 
----
+The app also keeps the VoiceScribe tabs: plain dictation, a personal vocabulary for drug names and other terms,
+on-device history, settings, and an admin page with invite-only accounts and usage limits.
 
-## For users
+A matching quote does not prove that the model interpreted it correctly. Check numbers, medications, negations
+and timings yourself.
 
-1. Open the site and choose **I have an invite code** (or open the invite link you were sent).
-2. Pick a username and a password.
-3. Allow the microphone when your browser asks.
-4. **Hold** the big microphone button (or the <kbd>Space</kbd> key) while you speak, then let go.
-5. The text appears in the editor and is copied. Paste it anywhere.
+## Run it locally
 
-See the [User guide](docs/USER_GUIDE.md) (English and Arabic) for tips, settings and troubleshooting.
-
-## For the site owner
-
-Everything runs on accounts you control. Typical cost for 5–10 light users is **only the ElevenLabs usage**
-(about **$0.22 per hour of audio** at the time of writing, plus about $0.05/hour when vocabulary is used). Cloudflare
-Pages, Functions and D1 stay within the free tier at this scale, and AI clean-up costs fractions of a cent per use.
-
-1. Fork or use this repository on GitHub.
-2. Create a Cloudflare account, a D1 database and an API token.
-3. Add three GitHub settings (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `D1_DATABASE_ID`). Every push to
-   `main` then tests and deploys automatically.
-4. Add your secrets in Cloudflare (`ELEVENLABS_API_KEY`, `ADMIN_SETUP_CODE`, and optionally `OPENAI_API_KEY`).
-5. Open the site, enter the setup code once to create your admin account, and invite people from the **Admin** page.
-
-The step-by-step [Deployment guide](docs/DEPLOYMENT.md) is written for non-developers. After that, see the
-[Admin guide](docs/ADMIN_GUIDE.md) for invites, limits, password resets and cost control.
-
-## How it works
-
-```
-Browser (React)                       Cloudflare Pages Functions (Hono)            Providers
-───────────────                       ─────────────────────────────────            ─────────
-MediaRecorder ── audio (webm/mp4) ──▶ /api/transcribe
-                                       • session cookie check (D1)
-                                       • rate limit + per-user/site quotas (D1)
-                                       • forwards audio, never stores it ─────────▶ ElevenLabs Scribe v2
-                                       • optional clean-up ───────────────────────▶ OpenAI-compatible API
-                                       • safety check (numbers, terms, wording)
-editor + copy ◀──── text + usage ──── • records only duration/counts (no text)
-history in localStorage (this device only)
-```
-
-More detail in [Architecture](docs/ARCHITECTURE.md) and [Security](SECURITY.md).
-
-## Development
-
-Requirements: Node.js 22+.
+Requirements: Node.js 22.12 or newer.
 
 ```bash
 npm install
@@ -93,110 +48,130 @@ npm install
 cp .dev.vars.example .dev.vars
 ```
 
-Edit `.dev.vars` with your keys, or use the bundled mock providers so you need no keys and spend nothing:
+Open `.dev.vars` and fill in your own keys. Never commit this file or share its contents.
+
+| Variable | What it is for |
+| --- | --- |
+| `ELEVENLABS_API_KEY` | Speech-to-text (ElevenLabs Scribe v2) |
+| `GEMINI_API_KEY` | SBAR reports in the Handoff tab, from [Google AI Studio](https://aistudio.google.com/api-keys). Without it, only the fixed example works |
+| `ADMIN_SETUP_CODE` | Any long random string; you enter it once in the app to create the first (admin) account |
+
+**Optional AI clean-up with the same Gemini key.** Clean-up uses any OpenAI-compatible API, so you can point it at
+Gemini's OpenAI-compatible endpoint. Add these lines to `.dev.vars`:
+
+```ini
+OPENAI_API_KEY=<your Gemini key>
+ENHANCE_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
+ENHANCE_MODEL=gemini-3.5-flash-lite
+ENHANCE_REASONING_EFFORT=minimal
+```
+
+`ENHANCE_REASONING_EFFORT` must be `minimal` here: the default in `wrangler.toml` is `none`, which Gemini rejects.
+
+**No keys, no cost.** The bundled mock providers stand in for ElevenLabs, the clean-up API and Gemini. Uncomment
+the mock lines at the end of `.dev.vars`, then start them in their own terminal:
 
 ```bash
 npm run mock:providers
 ```
 
-In a second terminal, build and run the site with the Functions and a local D1 database on http://localhost:8788:
+**Start the app.** Build once so `dist/` exists, then run Vite with hot reload on http://localhost:5173 (the API
+runs on port 8788 with a local D1 database):
 
 ```bash
-npm run preview
+npm run build
 ```
 
-For hot reload while working on the UI, `npm run dev` runs Vite on http://localhost:5173 with the API proxied to
-`wrangler pages dev` on port 8788 (run `npm run build` once first so `dist/` exists).
+```bash
+npm run dev
+```
+
+`npm run preview` instead builds and serves everything from http://localhost:8788 without hot reload.
 
 | Command | What it does |
 | --- | --- |
 | `npm run check` | Lint, typecheck, all tests, production build (what CI runs) |
-| `npm test` | Vitest: API integration tests on a real local D1 + UI tests in jsdom |
+| `npm test` | Vitest: API tests on a local D1, SBAR checks, and UI tests in jsdom |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
 | `npm run db:migrate:local` | Apply database migrations locally |
 
-All tests run without a microphone, network access or API keys: ElevenLabs and OpenAI are mocked, the database
-is an in-memory D1 from Wrangler, and the browser's microphone and `MediaRecorder` are faked. What still needs a
-human (real microphones, real API keys, real browsers and phones) is listed in
-[Manual testing](docs/MANUAL_TESTING.md).
+Tests need no microphone, network or API keys: ElevenLabs, the clean-up API and Gemini are mocked. What still
+needs a person is listed in [Manual testing](docs/MANUAL_TESTING.md).
+
+## Privacy
+
+- **Nothing is stored on the server:** no audio, no notes and no reports. The database holds only accounts,
+  sessions and usage counts (durations and numbers of requests).
+- **Audio goes to ElevenLabs** for transcription, and **notes go to Google** (Gemini) to build the report and,
+  if you turn it on, for clean-up. Their own data policies apply.
+- `store=false` means Gemini keeps no saved conversation for the app, but **free tiers may use the content you
+  send to improve the providers' products.** This is one more reason to use fictional cases only.
+- API keys live only in `.dev.vars` locally, or in Cloudflare secrets when deployed. History stays in your
+  browser on your device.
+
+See [Security](SECURITY.md) and [Architecture](docs/ARCHITECTURE.md) for details.
+
+## Deploying
+
+VoiceSBAR deploys to Cloudflare Pages the same way VoiceScribe does. Follow the
+[Deployment guide](docs/DEPLOYMENT.md), with two differences: also add `GEMINI_API_KEY` as a Cloudflare secret, and
+set the `PAGES_PROJECT_NAME` repository variable if you do not want the default `voicescribe-ai` name. The
+[Admin guide](docs/ADMIN_GUIDE.md) covers invites, limits, password resets and cost control.
 
 ### Project layout
 
 ```
 src/                 React + TypeScript UI (Vite)
-  audio/recorder.ts  microphone capture, MIME selection, level meter
-  components/        Dictate, History, Vocabulary, Settings, Admin, sign-in
+  components/        HandoffPanel (SBAR), Dictate, History, Vocabulary, Settings, Admin, sign-in
 server/              API (Hono) used by Cloudflare Pages Functions
-  routes/            auth, dictation (transcribe/enhance/vocabulary), admin
-  elevenlabs.ts      Scribe v2 client and error mapping
-  enhance.ts         OpenAI-compatible clean-up; verify.ts is the safety check
+  sbar.ts            SBAR prompt, schema, single Gemini call and quote checks
+  routes/            sbar, dictation (transcribe/enhance/vocabulary), auth, admin
+  elevenlabs.ts      Scribe v2 client; enhance.ts + verify.ts for clean-up and its safety check
 functions/api/       Pages Functions entry point
 shared/              types and validation rules used by both sides
 migrations/          D1 schema
-tests/               server/ (API + units) and web/ (UI) tests
-scripts/             mock ElevenLabs/OpenAI server for local use
+tests/               server/ and web/ tests
+scripts/             mock ElevenLabs, OpenAI-compatible and Gemini server for local use
 ```
 
-## Tech stack
+## Credits and licence
 
-| Area | Technologies |
-| --- | --- |
-| **Front end** | React 19, TypeScript, Vite, plain CSS (dark mode, responsive) |
-| **Browser APIs** | MediaRecorder (audio capture), Web Audio (level meter, silence detection), Clipboard API, Web Crypto (password stretching), localStorage (on-device history) |
-| **Back end** | Cloudflare Pages Functions, [Hono](https://hono.dev), Zod (request validation) |
-| **Database** | Cloudflare D1 (SQLite): accounts, sessions, usage counters. No audio or transcripts |
-| **Hosting** | Cloudflare Pages (free tier, HTTPS, global CDN) |
-| **AI** | ElevenLabs Scribe v2 (speech-to-text, automatic Arabic/English detection); optional OpenAI-compatible API (OpenAI, Gemini) for punctuation clean-up |
-| **Security** | PBKDF2-SHA256 in the browser + HMAC-SHA256 on the server, HttpOnly SameSite cookies, CSRF protection, rate limiting, strict Content-Security-Policy |
-| **Quality** | Vitest (112 tests), Testing Library + jsdom, ESLint, Wrangler (local runtime) |
-| **Automation** | GitHub Actions (CI on Linux, macOS and Windows; automatic deploy from `main`; tagged releases), Dependabot |
-| **License** | MIT |
+VoiceSBAR is built on two projects by Ibrahim Baabdullah:
+
+- [VoiceScribe](https://github.com/ibrahimbaabdullah-jpg/VoiceScribe), the Arabic/English dictation website
+  (React, Hono, Cloudflare Pages and D1).
+- [Nursing SBAR Handoff Summarizer](https://github.com/ibrahimbaabdullah-jpg/nursing-sbar-handoff), the
+  Python/Streamlit app whose prompt, schema and fail-closed checks were ported to `server/sbar.ts`.
+
+SBAR follows [AHRQ's TeamSTEPPS definition](https://www.ahrq.gov/teamstepps-program/curriculum/communication/tools/sbar.html).
+
+Licensed under [MIT](LICENSE). ElevenLabs, Google, Gemini, OpenAI and Cloudflare are trademarks of their owners;
+this project is not affiliated with them or with AHRQ.
 
 ## نبذة عن المشروع
 
 <div dir="rtl" lang="ar">
 
-🌐 **رابط الموقع: [voicescribe-ai.pages.dev](https://voicescribe-ai.pages.dev/)** (الدخول بدعوة فقط)
+**VoiceSBAR** أداة تعليمية بالعربية (الافتراضية) والإنجليزية: تُملي ملاحظات تمريضية عن **حالة وهمية**، فتتحوّل إلى تقرير تسليم بصيغة **SBAR**: الوضع، الخلفية، التقييم، والتوصية، مع قائمة تنبّه إلى المعلومات الناقصة أو غير المكتملة.
 
-**VoiceScribe** موقع مجاني ومفتوح المصدر لتحويل الكلام إلى نص. تكلّم بالعربي أو الإنجليزي أو بالاثنين في نفس الجملة، ويطلع لك النص جاهز تنسخه وتلصقه في أي مكان.
+> **للاستخدام التعليمي بحالات وهمية فقط. ليست جهازًا طبيًا وغير معتمدة للاستخدام السريري. يُمنع إدخال بيانات مرضى حقيقيين.** التقرير يحتاج مراجعة بشرية قبل الاعتماد عليه.
 
-**كيف يشتغل؟** تضغط مع الاستمرار على زر الميكروفون (أو مفتاح المسافة) وتتكلم، وأول ما تترك الزر يتحوّل كلامك لنص ويُنسخ تلقائيًا.
+**كيف تشتغل؟**
+1. **الإملاء:** اضغط مع الاستمرار على زر الميكروفون (أو مفتاح المسافة) وتكلّم بالعربي أو الإنجليزي أو بالاثنين، ثم اترك الزر. التحويل إلى نص يتم عبر ElevenLabs Scribe v2، بدون أي ترجمة. يمكن تفعيل تحسين علامات الترقيم بالذكاء الاصطناعي، ويُرفض تلقائيًا إذا غيّر أي كلمة أو رقم أو مصطلح.
+2. **إنشاء التقرير:** تُرسل الملاحظات إلى Gemini في **استدعاء واحد فقط** لكل تقرير، مع `store=false`، وبدون إعادة تلقائية.
+3. **كل سطر له اقتباس:** كل عبارة في التقرير مدعومة باقتباس حرفي من ملاحظاتك. يتحقق الخادم من كل اقتباس، وإذا لم يجد أحدها أو كان الرد ناقصًا **يُرفض التقرير بالكامل** ولا يُعرض.
+4. **قائمة التنبيهات:** كل بند يُصنَّف مذكورًا أو غير مكتمل أو غير مذكور أو غير واضح: الحساسية، العلامات الحيوية ووقت قياسها، التاريخ المرضي وسبب الدخول، الأدوية، الوعي، الألم، الأكسجين، الأجهزة، والخطة. لا يُستنتج من غياب المعلومة أنها طبيعية، ولا يضيف قسم التوصية خطة علاجية جديدة.
+5. **النسخ والتنزيل والطباعة** باللغة المختارة، ومثال وهمي ثابت يعمل بدون أي مفتاح.
 
-**أهم المميزات:**
-- يتعرّف تلقائيًا على **العربي والإنجليزي في نفس الجملة**، ويكتب العربي بالحروف العربية والمصطلحات الإنجليزية بالإنجليزي، **بدون أي ترجمة**.
-- **قاموس شخصي** للمصطلحات العلمية والطبية (أسماء أدوية، أمراض، اختصارات) لرفع الدقة.
-- **تحسين اختياري بالذكاء الاصطناعي** لعلامات الترقيم، مع فحص أمان يرفض أي تغيير في الكلمات أو الأرقام أو المصطلحات.
-- محرّر نص يدعم **اليمين لليسار واليسار لليمين** تلقائيًا، وزر نسخ، وتنزيل الملف، وسجل محفوظ في جهازك فقط.
-- يشتغل على **الكمبيوتر والتابلت والجوال**.
-- **حسابات بالدعوة فقط**، مع حد يومي وشهري لكل شخص، وحد للموقع كامل، وصفحة إدارة تعرض الاستخدام والتكلفة التقريبية.
-- **الخصوصية:** مفاتيح الخدمات محفوظة في Cloudflare فقط، والخادم **لا يحفظ أي تسجيل صوتي ولا أي نص**.
+**التشغيل المحلي:** يتطلب Node.js 22.12 أو أحدث. نفّذ `npm install`، ثم انسخ `.dev.vars.example` إلى `.dev.vars` وضع فيه مفاتيحك: `ELEVENLABS_API_KEY` و`GEMINI_API_KEY` و`ADMIN_SETUP_CODE`. لتحسين الترقيم بمفتاح Gemini نفسه، أضف القيم الأربع الموضحة في قسم [Run it locally](#run-it-locally) (ومنها `ENHANCE_REASONING_EFFORT=minimal` لأن Gemini يرفض القيمة `none`). للتجربة بدون مفاتيح وبدون تكلفة شغّل `npm run mock:providers`. بعدها نفّذ `npm run build` مرة واحدة ثم `npm run dev`. لا ترفع ملف `.dev.vars` ولا تشارك محتواه.
 
-**التقنيات المستخدمة:**
+**الخصوصية:**
+- الخادم **لا يحفظ أي تسجيل صوتي ولا ملاحظات ولا تقارير**.
+- الصوت يُرسل إلى ElevenLabs، والملاحظات تُرسل إلى Google (Gemini).
+- الخطط المجانية قد تستخدم المحتوى المرسل لتحسين منتجات هذه الشركات، ولذلك استخدم حالات وهمية فقط.
 
-| المجال | التقنيات |
-| --- | --- |
-| **الواجهة** | React 19، TypeScript، Vite، CSS (وضع ليلي وتصميم متجاوب) |
-| **أدوات المتصفح** | MediaRecorder لتسجيل الصوت، Web Audio لمؤشر الصوت وكشف الصمت، Clipboard للنسخ، Web Crypto لتشفير كلمة المرور، localStorage لحفظ السجل في الجهاز |
-| **الخادم** | Cloudflare Pages Functions، Hono، Zod للتحقق من البيانات |
-| **قاعدة البيانات** | Cloudflare D1 (SQLite) للحسابات والجلسات وعدّاد الاستخدام، بدون أي صوت أو نصوص |
-| **الاستضافة** | Cloudflare Pages (مجانية، HTTPS، شبكة عالمية) |
-| **الذكاء الاصطناعي** | ElevenLabs Scribe v2 لتحويل الصوت لنص؛ واختياريًا OpenAI أو Gemini لتحسين علامات الترقيم |
-| **الأمان** | تشفير كلمة المرور (PBKDF2 وHMAC-SHA256)، جلسات آمنة، حماية CSRF، تحديد عدد المحاولات، سياسة أمان صارمة للصفحة |
-| **الجودة** | Vitest (112 اختبار)، Testing Library، ESLint، Wrangler |
-| **الأتمتة** | GitHub Actions (اختبارات على Linux وmacOS وWindows، ونشر تلقائي)، Dependabot |
-| **الرخصة** | MIT (مفتوح المصدر) |
+**الشكر والرخصة:** مبني على مشروعين من إعداد إبراهيم باعبدالله: [VoiceScribe](https://github.com/ibrahimbaabdullah-jpg/VoiceScribe) و[مُلخِّص التسليم التمريضي](https://github.com/ibrahimbaabdullah-jpg/nursing-sbar-handoff). الرخصة MIT (مفتوح المصدر).
 
-للتفاصيل: [دليل المستخدم (عربي وإنجليزي)](docs/USER_GUIDE.md) · [دليل النشر](docs/DEPLOYMENT.md) · [دليل المسؤول](docs/ADMIN_GUIDE.md)
+للتفاصيل: [دليل المستخدم](docs/USER_GUIDE.md) · [دليل النشر](docs/DEPLOYMENT.md) · [دليل المسؤول](docs/ADMIN_GUIDE.md)
 
 </div>
-
-## Roadmap
-
-- Arabic user interface.
-- Optional desktop companion app (global hotkey and typing into the focused application), which a website
-  cannot do.
-
-## License
-
-[MIT](LICENSE). ElevenLabs, OpenAI, Gemini and Cloudflare are trademarks of their owners; this project is not
-affiliated with them.
