@@ -1,0 +1,47 @@
+# Cloudflare Pages configuration. This file is the source of truth for bindings and variables.
+# Secrets (ELEVENLABS_API_KEY, OPENAI_API_KEY, ADMIN_SETUP_CODE) are NOT set here:
+# add them in the Cloudflare dashboard or with `wrangler pages secret put`. See docs/DEPLOYMENT.md.
+
+name = "whispertocursor"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "whispertocursor"
+# The deploy workflow replaces this with the D1_DATABASE_ID repository variable.
+# Any value works for local development.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[vars]
+# Speech-to-text (ElevenLabs Scribe). Use https://api.eu.residency.elevenlabs.io for EU data residency.
+ELEVENLABS_BASE_URL = "https://api.elevenlabs.io"
+ELEVENLABS_MODEL_ID = "scribe_v2"
+# "true" sends enable_logging=false (zero retention). Only ElevenLabs Enterprise accounts accept it.
+ELEVENLABS_ZERO_RETENTION = "false"
+
+# Optional AI clean-up via any OpenAI-compatible Chat Completions API. Disabled until OPENAI_API_KEY is set.
+ENHANCE_BASE_URL = "https://api.openai.com/v1"
+ENHANCE_MODEL = "gpt-6-luna"
+# Sent as reasoning_effort. Set to "" for providers or models that do not support it.
+ENHANCE_REASONING_EFFORT = "none"
+
+# Cost controls. Per-user limits can be changed for each person in the Admin page.
+DEFAULT_DAILY_LIMIT_MINUTES = "30"
+DEFAULT_MONTHLY_LIMIT_MINUTES = "300"
+GLOBAL_DAILY_LIMIT_MINUTES = "180"
+GLOBAL_MONTHLY_LIMIT_MINUTES = "1500"
+MAX_RECORDING_SECONDS = "300"
+MAX_UPLOAD_MB = "25"
+TRANSCRIBE_PER_MINUTE = "10"
+ENHANCE_DAILY_LIMIT = "200"
+ALLOW_KEYTERMS = "true"
+
+# Daily limits reset at midnight in this IANA time zone, e.g. "Asia/Riyadh".
+USAGE_TIME_ZONE = "UTC"
+SESSION_DAYS = "30"
+
+# Only used for the cost estimate on the Admin page. Check https://elevenlabs.io/pricing/api.
+PRICE_AUDIO_PER_HOUR_USD = "0.22"
+PRICE_KEYTERMS_PER_HOUR_USD = "0.05"
