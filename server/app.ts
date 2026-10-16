@@ -7,6 +7,7 @@ import { ApiError } from './errors';
 import { registerAdminRoutes } from './routes/admin';
 import { registerAuthRoutes } from './routes/auth';
 import { registerDictationRoutes } from './routes/dictation';
+import { registerSbarRoutes } from './routes/sbar';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -68,6 +69,7 @@ export function createApp(overrides: Partial<Deps> = {}) {
 
   registerAuthRoutes(app);
   registerDictationRoutes(app);
+  registerSbarRoutes(app);
   registerAdminRoutes(app);
 
   app.notFound((c) => c.json({ error: { code: 'not_found', message: 'Not found.' } }, 404));

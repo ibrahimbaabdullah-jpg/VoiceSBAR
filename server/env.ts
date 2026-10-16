@@ -1,4 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import { DEFAULT_GEMINI_BASE_URL, DEFAULT_GEMINI_MODEL } from './sbar';
 
 /** Bindings available to the Pages Functions. Secrets are set in Cloudflare, never committed. */
 export interface Env {
@@ -7,6 +8,7 @@ export interface Env {
   // Secrets
   ELEVENLABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
+  GEMINI_API_KEY?: string;
   ADMIN_SETUP_CODE?: string;
 
   // Plain variables (see wrangler.toml)
@@ -16,6 +18,9 @@ export interface Env {
   ENHANCE_BASE_URL?: string;
   ENHANCE_MODEL?: string;
   ENHANCE_REASONING_EFFORT?: string;
+  GEMINI_BASE_URL?: string;
+  GEMINI_MODEL?: string;
+  SBAR_DAILY_LIMIT?: string;
   DEFAULT_DAILY_LIMIT_MINUTES?: string;
   DEFAULT_MONTHLY_LIMIT_MINUTES?: string;
   GLOBAL_DAILY_LIMIT_MINUTES?: string;
@@ -44,6 +49,12 @@ export interface Config {
     model: string;
     reasoningEffort: string | null;
   };
+  gemini: {
+    apiKey: string | null;
+    baseUrl: string;
+    model: string;
+  };
+  sbarDailyLimit: number;
   adminSetupCode: string | null;
   defaultDailySeconds: number;
   defaultMonthlySeconds: number;
@@ -102,6 +113,12 @@ export function loadConfig(env: Env): Config {
           ? 'none'
           : env.ENHANCE_REASONING_EFFORT.trim() || null,
     },
+    gemini: {
+      apiKey: secret(env.GEMINI_API_KEY),
+      baseUrl: (env.GEMINI_BASE_URL?.trim() || DEFAULT_GEMINI_BASE_URL).replace(/\/+$/, ''),
+      model: env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL,
+    },
+    sbarDailyLimit: Math.round(num(env.SBAR_DAILY_LIMIT, 50, 1)),
     adminSetupCode: secret(env.ADMIN_SETUP_CODE),
     defaultDailySeconds: Math.round(num(env.DEFAULT_DAILY_LIMIT_MINUTES, 30) * 60),
     defaultMonthlySeconds: Math.round(num(env.DEFAULT_MONTHLY_LIMIT_MINUTES, 300) * 60),

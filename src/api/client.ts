@@ -12,6 +12,7 @@ import type {
   VocabularyResponse,
 } from '../../shared/api';
 import type { LanguageHint } from '../../shared/rules';
+import type { SbarLanguage, SbarResponse } from '../../shared/sbar';
 import { derivePasswordKey } from '../lib/passwordKey';
 
 export class ApiError extends Error {
@@ -138,6 +139,8 @@ export const api = {
     });
   },
   enhance: (text: string) => request<EnhanceResponse>('POST', '/api/enhance', { json: { text } }),
+  sbar: (notes: string, language: SbarLanguage, consent: boolean) =>
+    request<SbarResponse>('POST', '/api/sbar', { json: { notes, language, consent } }),
 
   admin: {
     overview: () => request<AdminOverview>('GET', '/api/admin/overview'),

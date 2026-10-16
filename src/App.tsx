@@ -5,6 +5,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { AuthScreen } from './components/AuthScreen';
 import { Brand } from './components/Brand';
 import { DictatePanel } from './components/DictatePanel';
+import { HandoffPanel } from './components/HandoffPanel';
 import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { UsageMeter } from './components/UsageMeter';
@@ -12,8 +13,9 @@ import { VocabularyPanel } from './components/VocabularyPanel';
 import { clearStoredHistory, useHistory } from './lib/history';
 import { useSettings } from './lib/settings';
 
-type Tab = 'dictate' | 'history' | 'vocabulary' | 'settings' | 'admin';
+type Tab = 'handoff' | 'dictate' | 'history' | 'vocabulary' | 'settings' | 'admin';
 const TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
+  { id: 'handoff', label: 'Handoff' },
   { id: 'dictate', label: 'Dictate' },
   { id: 'history', label: 'History' },
   { id: 'vocabulary', label: 'Vocabulary' },
@@ -23,7 +25,7 @@ const TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
 
 function tabFromHash(): Tab {
   const id = window.location.hash.replace(/^#\/?/, '');
-  return (TABS.find((t) => t.id === id)?.id ?? 'dictate') as Tab;
+  return (TABS.find((t) => t.id === id)?.id ?? 'handoff') as Tab;
 }
 
 export function App() {
@@ -122,7 +124,7 @@ function SignedInApp({
 
   const go = (t: Tab) => {
     setTab(t);
-    window.history.replaceState(null, '', t === 'dictate' ? window.location.pathname : `#/${t}`);
+    window.history.replaceState(null, '', t === 'handoff' ? window.location.pathname : `#/${t}`);
   };
 
   const signOut = async (clearHistory: boolean, everywhere = false) => {
@@ -156,8 +158,18 @@ function SignedInApp({
         ))}
       </nav>
       <main className="content">
-        {/* The dictation panel stays mounted so text and recordings survive switching tabs. */}
-        <div hidden={tab !== 'dictate'}>
+        {/* The handoff and dictation panels stay mounted so text and recordings survive switching tabs. */}
+        <div hidden={tab !== 'handoff'}>
+          <HandoffPanel
+            me={me}
+            settings={settings}
+            updateSettings={updateSettings}
+            vocabularyCount={vocabularyCount}
+            onUsage={onUsage}
+            active={tab === 'handoff'}
+          />
+        </div>
+        <div className="narrow-panel" hidden={tab !== 'dictate'}>
           <DictatePanel
             me={me}
             settings={settings}
@@ -170,6 +182,7 @@ function SignedInApp({
             active={tab === 'dictate'}
           />
         </div>
+        <div className="narrow-panel">
         {tab === 'history' && (
           <HistoryPanel
             history={history}
@@ -192,10 +205,12 @@ function SignedInApp({
           />
         )}
         {tab === 'admin' && me.user.role === 'admin' && <AdminPanel currentUserId={me.user.id} />}
+        </div>
       </main>
       <footer className="footer muted">
-        Speech-to-text by ElevenLabs Scribe. Recordings are sent for transcription and are not stored by this
-        site. <a href="https://github.com/ibrahimbaabdullah-jpg/VoiceScribe" target="_blank" rel="noreferrer">Open source (MIT)</a>
+        Speech-to-text by ElevenLabs Scribe; handoff reports by Google Gemini. Recordings, notes and reports are
+        not stored by this site. Educational use with fictional cases only.{' '}
+        <a href="https://github.com/ibrahimbaabdullah-jpg/VoiceScribe" target="_blank" rel="noreferrer">Open source (MIT)</a>
       </footer>
     </div>
   );

@@ -34,7 +34,9 @@ function signedInServer(extra: Record<string, unknown> = {}) {
   });
 }
 
+/** Opens the Dictate tab (Handoff is the default tab; its recorder waits for consent). */
 async function renderSignedIn() {
+  window.history.replaceState(null, '', '/#/dictate');
   render(<App />);
   return screen.findByRole('button', { name: /^Record —/ });
 }
@@ -55,9 +57,9 @@ describe('signing in', () => {
     render(<App />);
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
     expect(screen.getByText(/invitation only/)).toBeInTheDocument();
-    expect(screen.getByText('VoiceScribe')).toBeInTheDocument();
+    expect(document.querySelector('.brand-name')).toHaveTextContent('VoiceSBAR');
     expect(screen.getByText('by Ibrahim Baabdullah')).toBeInTheDocument();
-    expect(screen.getByText('AI-Powered Speech-to-Text')).toBeInTheDocument();
+    expect(screen.getByText('Dictated SBAR handoffs')).toBeInTheDocument();
   });
 
   it('guides the owner through first-run setup', async () => {

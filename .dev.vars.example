@@ -3,9 +3,13 @@
 
 ELEVENLABS_API_KEY=your-elevenlabs-key
 # OPENAI_API_KEY=your-openai-key
+# Handoff tab (SBAR reports). Without it, only the fixed example works.
+# GEMINI_API_KEY=your-gemini-key
 ADMIN_SETUP_CODE=choose-a-long-random-setup-code
 
 # Uncomment to use the local mock providers instead of the real APIs (no cost):
 # ELEVENLABS_BASE_URL=http://127.0.0.1:8790
 # ENHANCE_BASE_URL=http://127.0.0.1:8790/v1
 # OPENAI_API_KEY=mock
+# GEMINI_API_KEY=mock
+# GEMINI_BASE_URL=http://127.0.0.1:8790

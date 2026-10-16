@@ -1,11 +1,11 @@
 {
-  "name": "VoiceScribe — AI-Powered Speech-to-Text",
-  "short_name": "VoiceScribe",
-  "description": "Speak Arabic, English or both and copy accurate text.",
+  "name": "VoiceSBAR — Dictated SBAR handoffs",
+  "short_name": "VoiceSBAR",
+  "description": "Dictate fictional nursing notes and turn them into a source-checked SBAR handoff. Educational use only.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "theme_color": "#167568",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

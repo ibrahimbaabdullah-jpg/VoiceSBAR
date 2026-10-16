@@ -49,6 +49,8 @@ export function useHotkey({ code, enabled, onPress, onRelease }: HotkeyOptions) 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== code) return;
       if (isTypingKey(code) && isEditableTarget(e.target)) return;
+      // Controls that must keep their own Space behaviour, e.g. the consent checkbox.
+      if (e.target instanceof Element && e.target.closest('[data-hotkey-pass]')) return;
       if (isTypingKey(code) && (e.ctrlKey || e.metaKey || e.altKey)) return;
       e.preventDefault(); // also stops Space from "clicking" a focused button or scrolling
       if (e.repeat || held.current) return;

@@ -1,5 +1,5 @@
 # Cloudflare Pages configuration. This file is the source of truth for bindings and variables.
-# Secrets (ELEVENLABS_API_KEY, OPENAI_API_KEY, ADMIN_SETUP_CODE) are NOT set here:
+# Secrets (ELEVENLABS_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, ADMIN_SETUP_CODE) are NOT set here:
 # add them in the Cloudflare dashboard or with `wrangler pages secret put`. See docs/DEPLOYMENT.md.
 
 name = "voicescribe-ai"
@@ -26,6 +26,12 @@ ENHANCE_BASE_URL = "https://api.openai.com/v1"
 ENHANCE_MODEL = "gpt-6-luna"
 # Sent as reasoning_effort. Set to "" for providers or models that do not support it.
 ENHANCE_REASONING_EFFORT = "none"
+
+# SBAR handoff reports: one Gemini Interactions call per report, store=false. Disabled until GEMINI_API_KEY is set.
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
+# Reports per person per day, on top of the fixed ten-second cooldown between reports.
+SBAR_DAILY_LIMIT = "50"
 
 # Cost controls. Per-user limits can be changed for each person in the Admin page.
 DEFAULT_DAILY_LIMIT_MINUTES = "30"

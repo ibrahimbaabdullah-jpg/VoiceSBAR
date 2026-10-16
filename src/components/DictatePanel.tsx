@@ -24,6 +24,22 @@ interface ResultInfo {
   enhancement: EnhancementResult;
 }
 
+/** Turns the panel into the capture stage of the Handoff tab (the SBAR notes field). */
+export interface HandoffOptions {
+  sectionLabel: string;
+  editorId: string;
+  label: string;
+  placeholder: string;
+  maxLength: number;
+  /** Shown in place of the word and character counts. */
+  meta: ReactNode;
+  /** Shown beside the editor label, e.g. the Dictated/Typed chip. */
+  chip?: ReactNode;
+  /** Returns a message while recording is not allowed yet (no consent), otherwise null. */
+  recordBlocked: () => string | null;
+  onSource: (source: 'dictated' | 'typed') => void;
+}
+
 interface Props {
   me: MeResponse;
   settings: Settings;
@@ -34,6 +50,7 @@ interface Props {
   onUsage: (usage: UsageSummary) => void;
   onTranscribed: (entry: Omit<HistoryEntry, 'id' | 'createdAt'>) => void;
   active: boolean;
+  handoff?: HandoffOptions;
 }
 
 /** Releases shorter than this in hold-to-talk mode are treated as accidental taps. */
@@ -49,6 +66,7 @@ export function DictatePanel({
   onUsage,
   onTranscribed,
   active,
+  handoff,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -123,6 +141,7 @@ export function DictatePanel({
           return;
         }
         applyText(res.text);
+        handoff?.onSource('dictated');
         onTranscribed({
           text: res.text,
           rawText: res.rawText,
@@ -135,7 +154,8 @@ export function DictatePanel({
           wantEnhance && res.enhancement.message && res.enhancement.status !== 'applied'
             ? ` ${res.enhancement.message}`
             : '';
-        if (settings.autoCopy) {
+        // Handoff notes are not copied: the finished report is what gets handed over.
+        if (settings.autoCopy && !handoff) {
           // Copy just the new dictation, ready to paste into another app.
           const method = await copyText(res.text);
           setNotice(
@@ -158,7 +178,7 @@ export function DictatePanel({
         setBusy(false);
       }
     },
-    [settings.language, settings.removeFillers, settings.autoCopy, wantEnhance, useKeyterms, applyText, onUsage, onTranscribed, retryActions],
+    [settings.language, settings.removeFillers, settings.autoCopy, wantEnhance, useKeyterms, applyText, onUsage, onTranscribed, retryActions, handoff],
   );
 
   useLayoutEffect(() => {
@@ -203,6 +223,11 @@ export function DictatePanel({
 
   const press = () => {
     if (!canRecord && !recording) return;
+    const blocked = recording ? null : handoff?.recordBlocked();
+    if (blocked) {
+      setNotice({ kind: 'warn', message: blocked });
+      return;
+    }
     if (settings.mode === 'toggle') {
       if (recording) recorder.stop();
       else void recorder.start();
@@ -291,7 +316,7 @@ export function DictatePanel({
         : 'Ready';
 
   return (
-    <section className="dictate" aria-label="Dictation">
+    <section className="dictate" aria-label={handoff ? handoff.sectionLabel : 'Dictation'}>
       {!supported && (
         <p className="notice error" role="alert">
           This browser cannot record audio{window.isSecureContext ? '' : ' on an insecure (http) page'}. Please use a recent
@@ -421,7 +446,12 @@ export function DictatePanel({
 
       <div className="editor-card card">
         <div className="editor-head">
-          <label htmlFor="editor" className="editor-label">Your text</label>
+          <span className="editor-title">
+            <label htmlFor={handoff?.editorId ?? 'editor'} className="editor-label">
+              {handoff ? handoff.label : 'Your text'}
+            </label>
+            {handoff?.chip}
+          </span>
           <div className="segmented small" role="group" aria-label="Text direction">
             {(['auto', 'rtl', 'ltr'] as const).map((d) => (
               <button
@@ -438,14 +468,16 @@ export function DictatePanel({
           </div>
         </div>
         <textarea
-          id="editor"
+          id={handoff?.editorId ?? 'editor'}
           ref={editorRef}
+          maxLength={handoff?.maxLength}
           className="editor"
           dir={settings.textDirection}
           value={text}
-          placeholder="Your transcription appears here. You can edit it before copying."
+          placeholder={handoff ? handoff.placeholder : 'Your transcription appears here. You can edit it before copying.'}
           onChange={(e) => {
             setText(e.target.value);
+            handoff?.onSource('typed');
             caretRef.current = e.target.selectionStart;
           }}
           onSelect={(e) => {
@@ -454,9 +486,13 @@ export function DictatePanel({
           spellCheck
         />
         <div className="editor-meta muted">
-          <span>
-            {wordCount(text)} words · {text.length} characters
-          </span>
+          {handoff ? (
+            <span>{handoff.meta}</span>
+          ) : (
+            <span>
+              {wordCount(text)} words · {text.length} characters
+            </span>
+          )}
           {result && (
             <span>
               Last: {languageName(result.languageCode)} · {result.durationSeconds.toFixed(1)} s
@@ -466,9 +502,11 @@ export function DictatePanel({
           )}
         </div>
         <div className="toolbar">
-          <button type="button" className="btn primary big" onClick={() => void doCopy()} disabled={!text}>
-            {copied ? '✓ Copied' : 'Copy text'}
-          </button>
+          {!handoff && (
+            <button type="button" className="btn primary big" onClick={() => void doCopy()} disabled={!text}>
+              {copied ? '✓ Copied' : 'Copy text'}
+            </button>
+          )}
           {features.enhancementAvailable && (
             <button type="button" className="btn" onClick={() => void doEnhance()} disabled={!text.trim() || busy}>
               Improve punctuation (AI)
@@ -486,27 +524,33 @@ export function DictatePanel({
               Undo
             </button>
           )}
-          <button type="button" className="btn" onClick={download} disabled={!text}>
-            Download .txt
-          </button>
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={() => {
-              setUndoText(text);
-              setText('');
-              caretRef.current = null;
-            }}
-            disabled={!text}
-          >
-            Clear
-          </button>
+          {!handoff && (
+            <>
+              <button type="button" className="btn" onClick={download} disabled={!text}>
+                Download .txt
+              </button>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => {
+                  setUndoText(text);
+                  setText('');
+                  caretRef.current = null;
+                }}
+                disabled={!text}
+              >
+                Clear
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="card">
-        <UsageMeter usage={me.usage} />
-      </div>
+      {!handoff && (
+        <div className="card">
+          <UsageMeter usage={me.usage} />
+        </div>
+      )}
     </section>
   );
 }

@@ -48,3 +48,32 @@ export async function enforceRateLimit(
 export async function pruneRateLimits(db: D1Database, nowSec: number): Promise<void> {
   await db.prepare('DELETE FROM rate_limits WHERE window_start < ?1').bind(nowSec - 86400).run();
 }
+
+/**
+ * A true cooldown (not a fixed window): allows one request per `seconds`, measured from the last
+ * allowed request. The check and the update are one atomic UPSERT, so parallel requests cannot
+ * both pass.
+ */
+export async function enforceCooldown(
+  db: D1Database,
+  key: string,
+  seconds: number,
+  nowSec: number,
+  message?: string,
+): Promise<void> {
+  const allowed = await db
+    .prepare(
+      `INSERT INTO rate_limits (key, window_start, count) VALUES (?1, ?2, 1)
+       ON CONFLICT (key) DO UPDATE SET window_start = excluded.window_start, count = rate_limits.count + 1
+         WHERE excluded.window_start - rate_limits.window_start >= ?3
+       RETURNING window_start`,
+    )
+    .bind(key, nowSec, seconds)
+    .first<{ window_start: number }>();
+  if (allowed) return;
+  const last = await db
+    .prepare('SELECT window_start FROM rate_limits WHERE key = ?1')
+    .bind(key)
+    .first<{ window_start: number }>();
+  throw tooManyRequests(Math.max(1, (last?.window_start ?? nowSec) + seconds - nowSec), message);
+}
