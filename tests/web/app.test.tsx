@@ -59,7 +59,7 @@ describe('signing in', () => {
     expect(screen.getByText(/invitation only/)).toBeInTheDocument();
     expect(document.querySelector('.brand-name')).toHaveTextContent('VoiceSBAR');
     expect(screen.getByText('by Ibrahim Baabdullah')).toBeInTheDocument();
-    expect(screen.getByText('Dictated SBAR handoffs')).toBeInTheDocument();
+    expect(screen.queryByText('Dictated SBAR handoffs')).not.toBeInTheDocument();
   });
 
   it('guides the owner through first-run setup', async () => {

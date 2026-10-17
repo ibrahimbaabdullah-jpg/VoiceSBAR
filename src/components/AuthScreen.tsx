@@ -131,28 +131,29 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: () => void }) {
       </div>
 
       <header className="auth-top">
-        <Brand />
+        <Brand tag={false} />
       </header>
 
       <main className="auth-main">
-        <section className="auth-hero">
-          <div className="auth-intro">
-            <span className="auth-eyebrow">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
-              </svg>
-              AI-powered SBAR documentation
-            </span>
-            <h2 className="auth-headline">
-              Turn spoken notes into clear, structured <span>SBAR reports.</span>
-            </h2>
-            <p className="auth-lead">
-              Speak your handover in Arabic, English or both. {APP_NAME} writes it up and you paste it into any
-              record.
-            </p>
-          </div>
-          <AuthShowcase />
-        </section>
+        <AuthShowcase
+          intro={
+            <div className="auth-intro">
+              <span className="auth-eyebrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
+                </svg>
+                AI-powered SBAR documentation
+              </span>
+              <h2 className="auth-headline">
+                Turn spoken notes into clear, structured <span>SBAR reports.</span>
+              </h2>
+              <p className="auth-lead">
+                Speak your handover in Arabic, English or both. {APP_NAME} writes it up and you paste it into any
+                record.
+              </p>
+            </div>
+          }
+        />
 
         <section className="auth-panel">
           <form className="auth-form" onSubmit={submit} noValidate>

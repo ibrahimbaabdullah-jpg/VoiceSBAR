@@ -1394,7 +1394,7 @@ input[type='checkbox']:focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 40px 64px;
+  gap: 32px 40px;
   max-width: 1360px;
   width: 100%;
   margin: 0 auto;
@@ -1402,7 +1402,7 @@ input[type='checkbox']:focus-visible {
 
 /* Hero */
 .auth-hero {
-  flex: 999 1 560px;
+  flex: 999 1 460px;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -1711,17 +1711,42 @@ input[type='checkbox']:focus-visible {
   color: var(--on-primary);
 }
 
-/* Speak → Structure → Paste */
+/* Speak → Structure → Paste: a vertical rail between the example and the form */
 .auth-steps {
-  max-width: 660px;
+  flex: 0 0 200px;
   margin: 0;
   padding: 0;
   list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.auth-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.auth-step-link {
+  flex: none;
+  color: var(--line-strong);
+  opacity: 0.6;
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease;
+}
+.auth-step-link path {
+  stroke: currentColor;
+}
+.auth-step-link.is-done {
+  color: var(--primary);
+  opacity: 1;
+}
+.auth-step-dash {
+  stroke-dasharray: 3 5;
+  animation: auth-dash 0.9s linear infinite;
 }
 .auth-step {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1736,6 +1761,7 @@ input[type='checkbox']:focus-visible {
 .auth-step.is-active {
   background: var(--primary-soft);
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 .auth-step-badge {
   flex: none;
@@ -1773,9 +1799,9 @@ input[type='checkbox']:focus-visible {
 
 /* Form panel */
 .auth-panel {
-  flex: 1 1 380px;
+  flex: 1 1 340px;
   min-width: 0;
-  max-width: 460px;
+  max-width: 440px;
   margin: 0 auto;
   padding: clamp(24px, 3vw, 40px);
   border-radius: 28px;
@@ -2034,9 +2060,49 @@ input[type='checkbox']:focus-visible {
     transform: rotate(360deg);
   }
 }
+@keyframes auth-dash {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* Medium screens: example and form side by side, the steps as a row underneath. */
+@media (max-width: 1199px) {
+  .auth-steps {
+    order: 3;
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-step-item {
+    flex-direction: row;
+  }
+  .auth-step {
+    width: auto;
+    min-width: 190px;
+  }
+  .auth-step-link {
+    rotate: -90deg;
+  }
+}
 
 /* Narrow screens: keep the sign-in form near the top; the animated example is for wide screens. */
 @media (max-width: 900px) {
+  .auth-steps {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .auth-step-item {
+    flex-direction: column;
+  }
+  .auth-step {
+    width: 100%;
+  }
+  .auth-step-link {
+    rotate: none;
+    height: 24px;
+  }
   .auth-main {
     align-items: stretch;
     gap: 24px;
@@ -2057,10 +2123,6 @@ input[type='checkbox']:focus-visible {
   }
 }
 @media (max-width: 560px) {
-  .auth-steps {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
   .auth-panel {
     padding: 22px 18px;
     border-radius: 22px;

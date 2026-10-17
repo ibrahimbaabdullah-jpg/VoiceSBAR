@@ -3,7 +3,7 @@ export const APP_AUTHOR = 'Ibrahim Baabdullah';
 export const APP_TAGLINE = 'Dictated SBAR handoffs';
 
 /** Logo, product name and author line shown at the top of every screen. */
-export function Brand({ size = 'normal' }: { size?: 'normal' | 'big' }) {
+export function Brand({ size = 'normal', tag = true }: { size?: 'normal' | 'big'; tag?: boolean }) {
   const icon = size === 'big' ? 44 : 32;
   return (
     <div className={`brand ${size === 'big' ? 'big' : ''}`}>
@@ -13,7 +13,7 @@ export function Brand({ size = 'normal' }: { size?: 'normal' | 'big' }) {
           <span dir="ltr">
             Voice<b>SBAR</b>
           </span>
-          {size === 'normal' && <span className="brand-tag">{APP_TAGLINE}</span>}
+          {size === 'normal' && tag && <span className="brand-tag">{APP_TAGLINE}</span>}
         </span>
         <span className="brand-by">by {APP_AUTHOR}</span>
       </div>
